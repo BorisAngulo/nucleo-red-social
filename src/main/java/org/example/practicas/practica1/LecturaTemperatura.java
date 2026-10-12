@@ -1,4 +1,4 @@
-package org.example.practicas;
+package org.example.practicas.practica1;
 
 import java.util.Locale;
 

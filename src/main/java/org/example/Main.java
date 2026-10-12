@@ -1,7 +1,7 @@
 package org.example;
 
-import org.example.practicas.LecturaTemperatura;
-import org.example.practicas.RegistroTelemetria;
+import org.example.practicas.practica1.LecturaTemperatura;
+import org.example.practicas.practica1.RegistroTelemetria;
 
 /**
  * Demostración etapa por etapa del registro de telemetría sobre un vector.
