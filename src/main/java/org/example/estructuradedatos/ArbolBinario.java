@@ -145,7 +145,7 @@ public class ArbolBinario<T> {
         if (raiz == null) {
             return recorrido;
         }
-        Cola<Nodo<T>> cola = new Cola<>();
+        Cola<Nodo<T>> cola = new ColaEnlazada<>();
         cola.encolar(raiz);
         while (!cola.estaVacia()) {
             Nodo<T> actual = cola.desencolar();
