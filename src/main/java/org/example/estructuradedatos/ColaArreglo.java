@@ -78,6 +78,23 @@ public class ColaArreglo<T> implements Cola<T> {
         return cantidad == elementos.length;
     }
 
+    public int getCapacidad() {
+        return elementos.length;
+    }
+
+    /** Casillero del próximo en salir. En reposo queda en 0. */
+    public int indiceFrente() {
+        return frente;
+    }
+
+    /** Casillero del último en entrar, o -1 si la cola está vacía. */
+    public int indiceFin() {
+        if (estaVacia()) {
+            return -1;
+        }
+        return (frente + cantidad - 1) % elementos.length;
+    }
+
     @Override
     public int tamano() {
         return cantidad;
