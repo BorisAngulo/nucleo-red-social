@@ -2,16 +2,14 @@ package org.example.practicas.practica8.serpientes;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
 
-import org.example.estructuradedatos.ColaArreglo;
+import org.example.estructuradedatos.ListaCircular;
 
 /**
  * Partida de serpientes y escaleras.
- * Los turnos salen de una cola circular: quien juega se desencola y,
- * si sigue en partida, vuelve a encolarse al final.
+ * Los turnos viven en una lista circular: la cabeza es quien juega.
+ * Si sigue en partida, rotar lo pasa al final. Si gana, sale del anillo.
  */
 public class JuegoSerpientesEscaleras {
 
@@ -20,8 +18,7 @@ public class JuegoSerpientesEscaleras {
 
     private final Tablero tablero;
     private final Random dado;
-    private ColaArreglo<Jugador> turnos;
-    private List<Jugador> jugadores;
+    private ListaCircular<Jugador> turnos;
 
     public JuegoSerpientesEscaleras(Random dado) {
         if (dado == null) {
@@ -32,32 +29,27 @@ public class JuegoSerpientesEscaleras {
     }
 
     public void jugar(BufferedReader entrada) {
-        jugadores = leerJugadores(entrada);
-        turnos = new ColaArreglo<>(jugadores.size());
-        for (Jugador jugador : jugadores) {
-            turnos.encolar(jugador);
-        }
+        leerJugadores(entrada);
         System.out.println();
         System.out.println("Tablero. ↑ escalera, ↓ serpiente. La meta es la celda " + Tablero.META + ".");
-        tablero.mostrar(jugadores);
+        tablero.mostrar(turnos);
         System.out.println("Para tirar el dado pulsa Enter.");
 
         Jugador ganador = null;
         while (ganador == null) {
-            Jugador actual = turnos.desencolar();
-            if (!actual.isEstado()) {
-                continue;
-            }
+            Jugador actual = turnos.obtener(0);
             System.out.println();
             System.out.println("Turno de " + actual.getNickname() + ". " + describirEspera());
             System.out.println("Enter para tirar el dado.");
             System.out.flush();
             leerLinea(entrada);
             ganador = jugarTurno(actual);
-            if (actual.isEstado()) {
-                turnos.encolar(actual);
+            tablero.mostrar(turnos);
+            if (ganador == null) {
+                turnos.rotar();
+            } else {
+                turnos.eliminarAlInicio();
             }
-            tablero.mostrar(jugadores);
         }
         System.out.println();
         System.out.println(ganador.getNickname() + " llegó a la celda " + Tablero.META + " y gana la partida.");
@@ -88,23 +80,27 @@ public class JuegoSerpientesEscaleras {
     }
 
     private String describirEspera() {
-        if (turnos.estaVacia()) {
+        if (turnos.tamano() <= 1) {
             return "Nadie espera.";
         }
         StringBuilder texto = new StringBuilder("Después siguen:");
+        boolean esQuienJuega = true;
         for (Jugador jugador : turnos) {
+            if (esQuienJuega) {
+                esQuienJuega = false;
+                continue;
+            }
             texto.append(' ').append(jugador.getNickname());
         }
         return texto.toString();
     }
 
-    private List<Jugador> leerJugadores(BufferedReader entrada) {
+    private void leerJugadores(BufferedReader entrada) {
         int cantidad = leerCantidad(entrada);
-        List<Jugador> alta = new ArrayList<>();
+        turnos = new ListaCircular<>();
         for (int i = 1; i <= cantidad; i++) {
-            alta.add(new Jugador(leerNickname(entrada, i, alta)));
+            turnos.insertarAlFinal(new Jugador(leerNickname(entrada, i)));
         }
-        return alta;
     }
 
     private int leerCantidad(BufferedReader entrada) {
@@ -129,7 +125,7 @@ public class JuegoSerpientesEscaleras {
         System.out.println("  Eso no es un número.");
     }
 
-    private String leerNickname(BufferedReader entrada, int orden, List<Jugador> yaIngresados) {
+    private String leerNickname(BufferedReader entrada, int orden) {
         while (true) {
             System.out.print("Nickname del jugador " + orden + ": ");
             System.out.flush();
@@ -138,19 +134,21 @@ public class JuegoSerpientesEscaleras {
                 System.out.println("  El nickname no puede estar vacío.");
                 continue;
             }
-            boolean repetido = false;
-            for (Jugador jugador : yaIngresados) {
-                if (jugador.getNickname().equalsIgnoreCase(nickname)) {
-                    repetido = true;
-                    break;
-                }
-            }
-            if (repetido) {
+            if (nicknameRepetido(nickname)) {
                 System.out.println("  Ese nickname ya está en la partida.");
                 continue;
             }
             return nickname;
         }
+    }
+
+    private boolean nicknameRepetido(String nickname) {
+        for (Jugador jugador : turnos) {
+            if (jugador.getNickname().equalsIgnoreCase(nickname)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

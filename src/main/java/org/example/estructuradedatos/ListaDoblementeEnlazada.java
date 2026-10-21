@@ -209,6 +209,123 @@ public class ListaDoblementeEnlazada<T> implements Iterable<T> {
         return Texto.de(this);
     }
 
+    /** Una marca sobre el primer nodo, o vacía si la lista no tiene elementos. */
+    public Posicion posicionInicial() {
+        if (cabeza == null) {
+            return new Posicion(null, -1);
+        }
+        return new Posicion(cabeza, 0);
+    }
+
+    /**
+     * Se queda en un nodo. Adelante y atrás siguen {@code siguiente} y {@code anterior}
+     * de ese nodo, sin recorrer la lista desde la cabeza.
+     */
+    public final class Posicion {
+        private Nodo<T> nodo;
+        private int indice;
+
+        private Posicion(Nodo<T> nodo, int indice) {
+            this.nodo = nodo;
+            this.indice = indice;
+        }
+
+        public T ver() {
+            if (nodo == null) {
+                return null;
+            }
+            return nodo.dato;
+        }
+
+        /** Posición de 1 a tamaño. Cero si no hay nodo. */
+        public int getPosicion() {
+            if (nodo == null) {
+                return 0;
+            }
+            return indice + 1;
+        }
+
+        public void fijarAlInicio() {
+            nodo = cabeza;
+            indice = cabeza == null ? -1 : 0;
+        }
+
+        /** Pasa al nodo siguiente. En el último no se mueve y devuelve null. */
+        public T avanzar() {
+            if (nodo == null || nodo.siguiente == null) {
+                return null;
+            }
+            nodo = nodo.siguiente;
+            indice++;
+            return nodo.dato;
+        }
+
+        /** Pasa al nodo anterior. En el primero no se mueve y devuelve null. */
+        public T retroceder() {
+            if (nodo == null || nodo.anterior == null) {
+                return null;
+            }
+            nodo = nodo.anterior;
+            indice--;
+            return nodo.dato;
+        }
+
+        /** Engancha un nodo justo después del actual, en un paso. */
+        public void insertarDespues(T dato) {
+            validar(dato);
+            if (nodo == null) {
+                insertarAlFinal(dato);
+                fijarAlInicio();
+                return;
+            }
+            Nodo<T> nuevo = new Nodo<>(dato);
+            Nodo<T> despues = nodo.siguiente;
+            nuevo.anterior = nodo;
+            nuevo.siguiente = despues;
+            nodo.siguiente = nuevo;
+            if (despues == null) {
+                ultimo = nuevo;
+            } else {
+                despues.anterior = nuevo;
+            }
+            cantidad++;
+        }
+
+        /**
+         * Desengancha este nodo usando su anterior y su siguiente.
+         * La marca pasa al siguiente, o al anterior si este era el último.
+         */
+        public T eliminar() {
+            if (nodo == null) {
+                return null;
+            }
+            T dato = nodo.dato;
+            Nodo<T> previo = nodo.anterior;
+            Nodo<T> posterior = nodo.siguiente;
+            if (previo == null) {
+                cabeza = posterior;
+            } else {
+                previo.siguiente = posterior;
+            }
+            if (posterior == null) {
+                ultimo = previo;
+            } else {
+                posterior.anterior = previo;
+            }
+            cantidad--;
+            if (posterior != null) {
+                nodo = posterior;
+            } else if (previo != null) {
+                nodo = previo;
+                indice--;
+            } else {
+                nodo = null;
+                indice = -1;
+            }
+            return dato;
+        }
+    }
+
     private Nodo<T> nodoEn(int indice) {
         validarIndice(indice);
         Nodo<T> actual = cabeza;

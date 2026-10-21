@@ -1,6 +1,6 @@
 package org.example.practicas.practica8.serpientes;
 
-import java.util.List;
+import org.example.estructuradedatos.ListaCircular;
 
 /** Tablero de 10×10. La celda 1 está abajo a la izquierda y la 100 arriba a la derecha. */
 public class Tablero {
@@ -28,7 +28,7 @@ public class Tablero {
         return celdas[coordenada[0]][coordenada[1]];
     }
 
-    public void mostrar(List<Jugador> jugadores) {
+    public void mostrar(ListaCircular<Jugador> jugadores) {
         for (int fila = LADO - 1; fila >= 0; fila--) {
             StringBuilder linea = new StringBuilder();
             for (int columna = 0; columna < LADO; columna++) {
@@ -38,7 +38,7 @@ public class Tablero {
         }
     }
 
-    private static String texto(Celda celda, List<Jugador> jugadores) {
+    private static String texto(Celda celda, ListaCircular<Jugador> jugadores) {
         String marca = switch (celda.getEfecto()) {
             case Celda.ESCALERA -> celda.getNumero() + "↑" + celda.getNumeroEfecto();
             case Celda.SERPIENTE -> celda.getNumero() + "↓" + celda.getNumeroEfecto();
