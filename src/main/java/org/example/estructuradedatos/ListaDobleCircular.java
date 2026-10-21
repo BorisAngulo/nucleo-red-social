@@ -2,8 +2,6 @@ package org.example.estructuradedatos;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
-import java.util.function.Consumer;
-
 /**
  * Lista circular doblemente enlazada. El primero y el último se apuntan
  * entre sí, y cada nodo conoce a sus dos vecinos.
@@ -146,29 +144,6 @@ public class ListaDobleCircular<T> implements Iterable<T> {
     public void vaciar() {
         cabeza = null;
         cantidad = 0;
-    }
-
-    public void paraCada(Consumer<T> accion) {
-        if (accion == null) {
-            throw new IllegalArgumentException("La acción no puede ser nula.");
-        }
-        for (T dato : this) {
-            accion.accept(dato);
-        }
-    }
-
-    public void paraCadaInverso(Consumer<T> accion) {
-        if (accion == null) {
-            throw new IllegalArgumentException("La acción no puede ser nula.");
-        }
-        if (cabeza == null) {
-            return;
-        }
-        Nodo<T> actual = cabeza.anterior;
-        for (int i = 0; i < cantidad; i++) {
-            accion.accept(actual.dato);
-            actual = actual.anterior;
-        }
     }
 
     @Override

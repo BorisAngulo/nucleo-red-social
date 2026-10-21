@@ -2,8 +2,6 @@ package org.example.estructuradedatos;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
-import java.util.function.Consumer;
-
 /**
  * Lista circular simplemente enlazada. El último nodo vuelve a apuntar
  * al primero. La referencia guardada es el último: su siguiente es la cabeza.
@@ -168,15 +166,6 @@ public class ListaCircular<T> implements Iterable<T> {
     public void vaciar() {
         ultimo = null;
         cantidad = 0;
-    }
-
-    public void paraCada(Consumer<T> accion) {
-        if (accion == null) {
-            throw new IllegalArgumentException("La acción no puede ser nula.");
-        }
-        for (T dato : this) {
-            accion.accept(dato);
-        }
     }
 
     @Override
