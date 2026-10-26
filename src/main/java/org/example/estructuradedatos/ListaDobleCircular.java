@@ -175,6 +175,40 @@ public class ListaDobleCircular<T> implements Iterable<T> {
         return Texto.de(this);
     }
 
+    /** Marca el primer nodo. En el anillo, avanzar y retroceder no tienen tope. */
+    public Posicion marcarInicio() {
+        if (cabeza == null) {
+            throw new NoSuchElementException("La lista está vacía.");
+        }
+        return new Posicion(cabeza);
+    }
+
+    /**
+     * Se queda en un nodo del anillo.
+     * Adelante sigue {@code siguiente} y atrás sigue {@code anterior}.
+     */
+    public final class Posicion {
+        private Nodo<T> nodo;
+
+        private Posicion(Nodo<T> nodo) {
+            this.nodo = nodo;
+        }
+
+        public T ver() {
+            return nodo.dato;
+        }
+
+        public T avanzar() {
+            nodo = nodo.siguiente;
+            return nodo.dato;
+        }
+
+        public T retroceder() {
+            nodo = nodo.anterior;
+            return nodo.dato;
+        }
+    }
+
     private void desconectar(Nodo<T> actual) {
         if (cantidad == 1) {
             cabeza = null;
