@@ -1,45 +1,22 @@
 package org.example.estructuradedatos;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
 /**
  * Árbol binario de búsqueda. Los datos menores que un nodo quedan a su
  * izquierda y los mayores a su derecha.
- * Sin comparador, el tipo debe implementar Comparable (Integer, String, Double).
- * Con comparador, sirve para cualquier tipo.
+ * El dato se ordena con su propio compareTo, como Integer o String.
  */
 public class ArbolBinario<T> {
 
-    private final Comparator<? super T> comparador;
-    private final boolean ordenNatural;
     private Nodo<T> raiz;
     private int cantidad;
-
-    public ArbolBinario() {
-        this(ordenNatural(), true);
-    }
-
-    public ArbolBinario(Comparator<? super T> comparador) {
-        this(comparador, false);
-    }
-
-    private ArbolBinario(Comparator<? super T> comparador, boolean ordenNatural) {
-        if (comparador == null) {
-            throw new IllegalArgumentException("El comparador no puede ser nulo.");
-        }
-        this.comparador = comparador;
-        this.ordenNatural = ordenNatural;
-    }
 
     /** Inserta el dato respetando el orden. Devuelve false si ya estaba. */
     public boolean insertar(T dato) {
         validar(dato);
-        if (ordenNatural && !(dato instanceof Comparable<?>)) {
-            throw new IllegalArgumentException("Sin comparador, el dato debe implementar Comparable.");
-        }
         if (raiz == null) {
             raiz = new Nodo<>(dato);
             cantidad = 1;
@@ -166,7 +143,7 @@ public class ArbolBinario<T> {
     }
 
     private boolean insertar(Nodo<T> nodo, T dato) {
-        int comparacion = comparador.compare(dato, nodo.dato);
+        int comparacion = comparar(dato, nodo.dato);
         if (comparacion == 0) {
             return false;
         }
@@ -188,7 +165,7 @@ public class ArbolBinario<T> {
         if (nodo == null) {
             return null;
         }
-        int comparacion = comparador.compare(dato, nodo.dato);
+        int comparacion = comparar(dato, nodo.dato);
         if (comparacion < 0) {
             nodo.izquierdo = eliminar(nodo.izquierdo, dato);
         } else if (comparacion > 0) {
@@ -209,7 +186,7 @@ public class ArbolBinario<T> {
         if (nodo == null) {
             return null;
         }
-        int comparacion = comparador.compare(dato, nodo.dato);
+        int comparacion = comparar(dato, nodo.dato);
         if (comparacion == 0) {
             return nodo;
         }
@@ -272,16 +249,11 @@ public class ArbolBinario<T> {
     }
 
     @SuppressWarnings("unchecked")
-    private static <T> Comparator<T> ordenNatural() {
-        Comparator<T> natural = (Comparator<T>) Comparator.naturalOrder();
-        return (a, b) -> {
-            try {
-                return natural.compare(a, b);
-            } catch (ClassCastException excepcion) {
-                throw new IllegalArgumentException(
-                        "Sin comparador, el dato debe implementar Comparable.", excepcion);
-            }
-        };
+    private int comparar(T a, T b) {
+        if (!(a instanceof Comparable<?>)) {
+            throw new IllegalArgumentException("El dato debe poder ordenarse con compareTo.");
+        }
+        return ((Comparable<? super T>) a).compareTo(b);
     }
 
     private static <T> void validar(T dato) {
