@@ -1,7 +1,5 @@
 package org.example.estructuradedatos;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.NoSuchElementException;
 
 /**
@@ -99,26 +97,26 @@ public class ArbolBinario<T> {
         cantidad = 0;
     }
 
-    public List<T> preorden() {
-        List<T> recorrido = new ArrayList<>();
+    public ListaEnlazada<T> preorden() {
+        ListaEnlazada<T> recorrido = new ListaEnlazada<>();
         preorden(raiz, recorrido);
         return recorrido;
     }
 
-    public List<T> inorden() {
-        List<T> recorrido = new ArrayList<>();
+    public ListaEnlazada<T> inorden() {
+        ListaEnlazada<T> recorrido = new ListaEnlazada<>();
         inorden(raiz, recorrido);
         return recorrido;
     }
 
-    public List<T> postorden() {
-        List<T> recorrido = new ArrayList<>();
+    public ListaEnlazada<T> postorden() {
+        ListaEnlazada<T> recorrido = new ListaEnlazada<>();
         postorden(raiz, recorrido);
         return recorrido;
     }
 
-    public List<T> porNiveles() {
-        List<T> recorrido = new ArrayList<>();
+    public ListaEnlazada<T> porNiveles() {
+        ListaEnlazada<T> recorrido = new ListaEnlazada<>();
         if (raiz == null) {
             return recorrido;
         }
@@ -126,7 +124,7 @@ public class ArbolBinario<T> {
         cola.encolar(raiz);
         while (!cola.estaVacia()) {
             Nodo<T> actual = cola.desencolar();
-            recorrido.add(actual.dato);
+            recorrido.insertarAlFinal(actual.dato);
             if (actual.izquierdo != null) {
                 cola.encolar(actual.izquierdo);
             }
@@ -221,31 +219,31 @@ public class ArbolBinario<T> {
         return contarHojas(nodo.izquierdo) + contarHojas(nodo.derecho);
     }
 
-    private void preorden(Nodo<T> nodo, List<T> recorrido) {
+    private void preorden(Nodo<T> nodo, ListaEnlazada<T> recorrido) {
         if (nodo == null) {
             return;
         }
-        recorrido.add(nodo.dato);
+        recorrido.insertarAlFinal(nodo.dato);
         preorden(nodo.izquierdo, recorrido);
         preorden(nodo.derecho, recorrido);
     }
 
-    private void inorden(Nodo<T> nodo, List<T> recorrido) {
+    private void inorden(Nodo<T> nodo, ListaEnlazada<T> recorrido) {
         if (nodo == null) {
             return;
         }
         inorden(nodo.izquierdo, recorrido);
-        recorrido.add(nodo.dato);
+        recorrido.insertarAlFinal(nodo.dato);
         inorden(nodo.derecho, recorrido);
     }
 
-    private void postorden(Nodo<T> nodo, List<T> recorrido) {
+    private void postorden(Nodo<T> nodo, ListaEnlazada<T> recorrido) {
         if (nodo == null) {
             return;
         }
         postorden(nodo.izquierdo, recorrido);
         postorden(nodo.derecho, recorrido);
-        recorrido.add(nodo.dato);
+        recorrido.insertarAlFinal(nodo.dato);
     }
 
     @SuppressWarnings("unchecked")
