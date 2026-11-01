@@ -50,6 +50,58 @@ public class ArbolBinario<T> {
         return buscar(dato) != null;
     }
 
+    /**
+     * Busca en profundidad con una pila. Visita la raíz, luego el hijo
+     * izquierdo y después el derecho, y se detiene al encontrar el dato.
+     * Compara con equals, sin usar el orden del árbol.
+     */
+    public T busquedaEnProfundidad(T dato) {
+        if (dato == null || raiz == null) {
+            return null;
+        }
+        Pila<Nodo<T>> pila = new PilaEnlazada<>();
+        pila.apilar(raiz);
+        while (!pila.estaVacia()) {
+            Nodo<T> actual = pila.desapilar();
+            if (dato.equals(actual.dato)) {
+                return actual.dato;
+            }
+            if (actual.derecho != null) {
+                pila.apilar(actual.derecho);
+            }
+            if (actual.izquierdo != null) {
+                pila.apilar(actual.izquierdo);
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Busca en anchura con una cola. Recorre nivel por nivel, de izquierda
+     * a derecha, y se detiene al encontrar el dato.
+     * Compara con equals, sin usar el orden del árbol.
+     */
+    public T busquedaEnAnchura(T dato) {
+        if (dato == null || raiz == null) {
+            return null;
+        }
+        Cola<Nodo<T>> cola = new ColaEnlazada<>();
+        cola.encolar(raiz);
+        while (!cola.estaVacia()) {
+            Nodo<T> actual = cola.desencolar();
+            if (dato.equals(actual.dato)) {
+                return actual.dato;
+            }
+            if (actual.izquierdo != null) {
+                cola.encolar(actual.izquierdo);
+            }
+            if (actual.derecho != null) {
+                cola.encolar(actual.derecho);
+            }
+        }
+        return null;
+    }
+
     public T minimo() {
         if (raiz == null) {
             throw new NoSuchElementException("El árbol está vacío.");
