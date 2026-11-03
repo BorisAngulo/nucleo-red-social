@@ -26,6 +26,7 @@ public class VentanaRedSocial extends JFrame {
     private static final String INICIO = "inicio";
     private static final String DETALLE = "detalle";
     private static final String GRADOS = "grados";
+    private static final String CONEXIONES_KEY = "CONEXIONES_DIRECTAS";
 
     private final CardLayout cartas = new CardLayout();
     private final JPanel raiz = new JPanel(cartas);
@@ -42,6 +43,7 @@ public class VentanaRedSocial extends JFrame {
         raiz.add(pantallaInicio(), INICIO);
         raiz.add(pantallaDetalle(), DETALLE);
         raiz.add(new PanelGradosSeparacion(() -> cartas.show(raiz, INICIO)), GRADOS);
+        raiz.add(new PanelMatrizAdyacencia(() -> cartas.show(raiz, INICIO)), CONEXIONES_KEY);
         setContentPane(raiz);
     }
 
@@ -162,6 +164,10 @@ public class VentanaRedSocial extends JFrame {
     private void mostrar(FuncionRed funcion) {
         if (funcion == FuncionRed.GRADOS_DE_SEPARACION) {
             cartas.show(raiz, GRADOS);
+            return;
+        }
+        if (funcion == FuncionRed.CONEXIONES_DIRECTAS) {
+            cartas.show(raiz, CONEXIONES_KEY);
             return;
         }
         grupoDetalle.setText(funcion.getGrupo());
