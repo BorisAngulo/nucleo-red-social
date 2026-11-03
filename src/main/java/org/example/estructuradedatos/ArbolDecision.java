@@ -1,81 +1,76 @@
 package org.example.estructuradedatos;
 
 /**
- * Árbol binario de decisión. La raíz apunta a un nodo.
- * Un nodo interno guarda una pregunta y dos hijos: el izquierdo es el sí
- * y el derecho es el no. Una hoja no tiene hijos y guarda el resultado.
+ * Árbol binario de decisión. Cada nodo es una pregunta o una hoja.
+ * La pregunta tiene dos hijos: el izquierdo es el sí y el derecho es el no.
+ * La hoja no tiene hijos y guarda el resultado.
  */
-public class ArbolDecision<T, R> {
+public class ArbolDecision {
 
-    private final Nodo<T, R> raiz;
+    private final Nodo raiz;
 
-    private ArbolDecision(Nodo<T, R> raiz) {
+    public ArbolDecision(Nodo raiz) {
+        if (raiz == null) {
+            throw new IllegalArgumentException("La raíz no puede ser nula.");
+        }
         this.raiz = raiz;
     }
 
-    public static <T, R> ArbolDecision<T, R> hoja(R resultado) {
-        if (resultado == null) {
-            throw new IllegalArgumentException("El resultado de la hoja no puede ser nulo.");
-        }
-        return new ArbolDecision<>(new Nodo<>(resultado));
+    public Nodo getRaiz() {
+        return raiz;
     }
 
-    public static <T, R> ArbolDecision<T, R> pregunta(Condicion<T> condicion,
-            ArbolDecision<T, R> siVerdadero, ArbolDecision<T, R> siFalso) {
-        if (condicion == null) {
-            throw new IllegalArgumentException("La condición no puede ser nula.");
-        }
-        if (siVerdadero == null || siFalso == null) {
-            throw new IllegalArgumentException("La pregunta necesita los dos hijos.");
-        }
-        return new ArbolDecision<>(new Nodo<>(condicion, siVerdadero.raiz, siFalso.raiz));
-    }
+    public static final class Nodo {
 
-    public boolean esHoja() {
-        return raiz.esHoja();
-    }
+        private final String pregunta;
+        private final String resultado;
+        private final Nodo izquierdo;
+        private final Nodo derecho;
 
-    /** Baja desde la raíz, eligiendo el hijo izquierdo o el derecho, hasta una hoja. */
-    public R decidir(T estado) {
-        if (estado == null) {
-            throw new IllegalArgumentException("El estado no puede ser nulo.");
-        }
-        return decidir(raiz, estado);
-    }
-
-    private R decidir(Nodo<T, R> nodo, T estado) {
-        if (nodo.esHoja()) {
-            return nodo.resultado;
-        }
-        if (nodo.condicion.cumple(estado)) {
-            return decidir(nodo.izquierdo, estado);
-        }
-        return decidir(nodo.derecho, estado);
-    }
-
-    private static final class Nodo<T, R> {
-
-        private final Condicion<T> condicion;
-        private final R resultado;
-        private final Nodo<T, R> izquierdo;
-        private final Nodo<T, R> derecho;
-
-        private Nodo(R resultado) {
-            this.condicion = null;
+        private Nodo(String pregunta, String resultado, Nodo izquierdo, Nodo derecho) {
+            this.pregunta = pregunta;
             this.resultado = resultado;
-            this.izquierdo = null;
-            this.derecho = null;
-        }
-
-        private Nodo(Condicion<T> condicion, Nodo<T, R> izquierdo, Nodo<T, R> derecho) {
-            this.condicion = condicion;
-            this.resultado = null;
             this.izquierdo = izquierdo;
             this.derecho = derecho;
         }
 
-        private boolean esHoja() {
+        /** Hoja: el texto que se devuelve al llegar aquí. */
+        public static Nodo hoja(String resultado) {
+            if (resultado == null || resultado.isBlank()) {
+                throw new IllegalArgumentException("El resultado de la hoja no puede estar vacío.");
+            }
+            return new Nodo(null, resultado, null, null);
+        }
+
+        /** Pregunta con su hijo izquierdo (sí) y su hijo derecho (no). */
+        public static Nodo pregunta(String pregunta, Nodo izquierdo, Nodo derecho) {
+            if (pregunta == null || pregunta.isBlank()) {
+                throw new IllegalArgumentException("La pregunta no puede estar vacía.");
+            }
+            if (izquierdo == null || derecho == null) {
+                throw new IllegalArgumentException("La pregunta necesita los dos hijos.");
+            }
+            return new Nodo(pregunta, null, izquierdo, derecho);
+        }
+
+        public boolean esHoja() {
             return izquierdo == null && derecho == null;
+        }
+
+        public String getPregunta() {
+            return pregunta;
+        }
+
+        public String getResultado() {
+            return resultado;
+        }
+
+        public Nodo getIzquierdo() {
+            return izquierdo;
+        }
+
+        public Nodo getDerecho() {
+            return derecho;
         }
     }
 }
