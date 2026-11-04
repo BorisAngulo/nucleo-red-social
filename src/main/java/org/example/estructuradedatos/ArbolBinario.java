@@ -187,6 +187,28 @@ public class ArbolBinario<T> {
         return recorrido;
     }
 
+    /**
+     * Hijo izquierdo y después el derecho del dato.
+     * La lista queda vacía si el dato no está o si el nodo es hoja.
+     */
+    public ListaEnlazada<T> hijos(T dato) {
+        ListaEnlazada<T> hijos = new ListaEnlazada<>();
+        if (dato == null || raiz == null) {
+            return hijos;
+        }
+        Nodo<T> nodo = buscarNodo(raiz, dato);
+        if (nodo == null) {
+            return hijos;
+        }
+        if (nodo.izquierdo != null) {
+            hijos.insertarAlFinal(nodo.izquierdo.dato);
+        }
+        if (nodo.derecho != null) {
+            hijos.insertarAlFinal(nodo.derecho.dato);
+        }
+        return hijos;
+    }
+
     @Override
     public String toString() {
         return inorden().toString();

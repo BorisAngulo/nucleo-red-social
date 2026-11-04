@@ -30,6 +30,7 @@ public class VentanaRedSocial extends JFrame {
     private static final String GRADOS = "grados";
     private static final String CONEXIONES_KEY = "CONEXIONES_DIRECTAS";
     private static final String AMIGOS = "amigos";
+    private static final String BUSCAR_PERFILES_KEY = "BUSCAR_PERFILES";
 
     private final CardLayout cartas = new CardLayout();
     private final JPanel raiz = new JPanel(cartas);
@@ -59,31 +60,6 @@ public class VentanaRedSocial extends JFrame {
         // Pantalla de detalle
         raiz.add(pantallaDetalle(), DETALLE);
 
-        // Pantalla de grados de separación
-        raiz.add(
-                new PanelGradosSeparacion(
-                        () -> cartas.show(raiz, INICIO)
-                ),
-                GRADOS
-        );
-
-        // =====================================
-        // CONEXIONES DIRECTAS
-        // =====================================
-        // Conserva aquí tu conexión original si ya tienes
-        // implementado PanelMatrizAdyacencia.
-
-        // raiz.add(
-        //         new PanelMatrizAdyacencia(
-        //                 () -> cartas.show(raiz, INICIO)
-        //         ),
-        //         CONEXIONES_KEY
-        // );
-
-        // =====================================
-        // AMIGOS SUGERIDOS
-        // =====================================
-
         raiz.add(
                 new PanelCarruselAmigos(
                         () -> cartas.show(raiz, INICIO)
@@ -91,6 +67,9 @@ public class VentanaRedSocial extends JFrame {
                 AMIGOS
         );
 
+        raiz.add(new PanelGradosSeparacion(() -> cartas.show(raiz, INICIO)), GRADOS);
+        raiz.add(new PanelMatrizAdyacencia(() -> cartas.show(raiz, INICIO)), CONEXIONES_KEY);
+        raiz.add(new PanelBuscarPerfiles(() -> cartas.show(raiz, INICIO)), BUSCAR_PERFILES_KEY);
         setContentPane(raiz);
     }
 
@@ -327,22 +306,19 @@ public class VentanaRedSocial extends JFrame {
             return;
         }
 
-        if (funcion == FuncionRed.CONEXIONES_DIRECTAS) {
-
-            cartas.show(raiz, CONEXIONES_KEY);
-            return;
-        }
-
-        // =====================================
-        // ABRIR AMIGOS SUGERIDOS
-        // =====================================
-
         if (funcion == FuncionRed.AMIGOS_SUGERIDOS) {
 
             cartas.show(raiz, AMIGOS);
             return;
         }
-
+        if (funcion == FuncionRed.CONEXIONES_DIRECTAS) {
+            cartas.show(raiz, CONEXIONES_KEY);
+            return;
+        }
+        if (funcion == FuncionRed.BUSCAR_PERFILES) {
+            cartas.show(raiz, BUSCAR_PERFILES_KEY);
+            return;
+        }
         grupoDetalle.setText(funcion.getGrupo());
 
         tituloDetalle.setText(funcion.getNombre());
