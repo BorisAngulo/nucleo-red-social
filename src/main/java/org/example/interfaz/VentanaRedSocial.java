@@ -28,6 +28,7 @@ public class VentanaRedSocial extends JFrame {
     private static final String GRADOS = "grados";
     private static final String CONEXIONES_KEY = "CONEXIONES_DIRECTAS";
     private static final String PUBLICACIONES_KEY = "PUBLICACIONES_DEL_PERFIL";
+    private static final String HISTORIAL_KEY = "HISTORIAL_DE_NAVEGACION";
 
     private final CardLayout cartas = new CardLayout();
     private final JPanel raiz = new JPanel(cartas);
@@ -46,6 +47,7 @@ public class VentanaRedSocial extends JFrame {
         raiz.add(new PanelGradosSeparacion(() -> cartas.show(raiz, INICIO)), GRADOS);
         raiz.add(new PanelMatrizAdyacencia(() -> cartas.show(raiz, INICIO)), CONEXIONES_KEY);
         raiz.add(new PanelPublicaciones(() -> cartas.show(raiz, INICIO)), PUBLICACIONES_KEY);
+        raiz.add(new PanelHistorialNavegacion(() -> cartas.show(raiz, INICIO)), HISTORIAL_KEY);
         setContentPane(raiz);
     }
 
@@ -174,6 +176,10 @@ public class VentanaRedSocial extends JFrame {
         }
         if (funcion == FuncionRed.PUBLICACIONES_DEL_PERFIL) {
             cartas.show(raiz, PUBLICACIONES_KEY);
+            return;
+        }
+        if (funcion == FuncionRed.HISTORIAL_DE_NAVEGACION) {
+            cartas.show(raiz, HISTORIAL_KEY);
             return;
         }
         grupoDetalle.setText(funcion.getGrupo());
