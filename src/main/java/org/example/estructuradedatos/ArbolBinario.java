@@ -1,0 +1,346 @@
+package org.example.estructuradedatos;
+
+import java.util.NoSuchElementException;
+
+/**
+ * Árbol binario de búsqueda. Los datos menores que un nodo quedan a su
+ * izquierda y los mayores a su derecha.
+ * El dato se ordena con su propio compareTo, como Integer o String.
+ */
+public class ArbolBinario<T> {
+
+    private Nodo<T> raiz;
+    private int cantidad;
+
+    /** Inserta el dato respetando el orden. Devuelve false si ya estaba. */
+    public boolean insertar(T dato) {
+        validar(dato);
+        if (raiz == null) {
+            raiz = new Nodo<>(dato);
+            cantidad = 1;
+            return true;
+        }
+        if (!insertar(raiz, dato)) {
+            return false;
+        }
+        cantidad++;
+        return true;
+    }
+
+    /** Quita la primera coincidencia según el orden. Devuelve false si no está. */
+    public boolean eliminar(T dato) {
+        if (dato == null || raiz == null || buscarNodo(raiz, dato) == null) {
+            return false;
+        }
+        raiz = eliminar(raiz, dato);
+        cantidad--;
+        return true;
+    }
+
+    /** Dato guardado que coincide en el orden, o null si no está. */
+    public T buscar(T dato) {
+        if (dato == null || raiz == null) {
+            return null;
+        }
+        Nodo<T> nodo = buscarNodo(raiz, dato);
+        return nodo == null ? null : nodo.dato;
+    }
+
+    public boolean contiene(T dato) {
+        return buscar(dato) != null;
+    }
+
+    /**
+     * Busca en profundidad con una pila. Visita la raíz, luego el hijo
+     * izquierdo y después el derecho, y se detiene al encontrar el dato.
+     * Compara con equals, sin usar el orden del árbol.
+     */
+    public T busquedaEnProfundidad(T dato) {
+        if (dato == null || raiz == null) {
+            return null;
+        }
+        Pila<Nodo<T>> pila = new PilaEnlazada<>();
+        pila.apilar(raiz);
+        while (!pila.estaVacia()) {
+            Nodo<T> actual = pila.desapilar();
+            if (dato.equals(actual.dato)) {
+                return actual.dato;
+            }
+            if (actual.derecho != null) {
+                pila.apilar(actual.derecho);
+            }
+            if (actual.izquierdo != null) {
+                pila.apilar(actual.izquierdo);
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Busca en anchura con una cola. Recorre nivel por nivel, de izquierda
+     * a derecha, y se detiene al encontrar el dato.
+     * Compara con equals, sin usar el orden del árbol.
+     */
+    public T busquedaEnAnchura(T dato) {
+        if (dato == null || raiz == null) {
+            return null;
+        }
+        Cola<Nodo<T>> cola = new ColaEnlazada<>();
+        cola.encolar(raiz);
+        while (!cola.estaVacia()) {
+            Nodo<T> actual = cola.desencolar();
+            if (dato.equals(actual.dato)) {
+                return actual.dato;
+            }
+            if (actual.izquierdo != null) {
+                cola.encolar(actual.izquierdo);
+            }
+            if (actual.derecho != null) {
+                cola.encolar(actual.derecho);
+            }
+        }
+        return null;
+    }
+
+    public T minimo() {
+        if (raiz == null) {
+            throw new NoSuchElementException("El árbol está vacío.");
+        }
+        return minimo(raiz).dato;
+    }
+
+    public T maximo() {
+        if (raiz == null) {
+            throw new NoSuchElementException("El árbol está vacío.");
+        }
+        Nodo<T> actual = raiz;
+        while (actual.derecho != null) {
+            actual = actual.derecho;
+        }
+        return actual.dato;
+    }
+
+    public T datoRaiz() {
+        if (raiz == null) {
+            throw new NoSuchElementException("El árbol está vacío.");
+        }
+        return raiz.dato;
+    }
+
+    /** Nodos del camino más largo. Un árbol vacío mide 0 y una hoja mide 1. */
+    public int altura() {
+        return altura(raiz);
+    }
+
+    public int contarHojas() {
+        return contarHojas(raiz);
+    }
+
+    public int tamano() {
+        return cantidad;
+    }
+
+    public boolean estaVacio() {
+        return raiz == null;
+    }
+
+    public void vaciar() {
+        raiz = null;
+        cantidad = 0;
+    }
+
+    public ListaEnlazada<T> preorden() {
+        ListaEnlazada<T> recorrido = new ListaEnlazada<>();
+        preorden(raiz, recorrido);
+        return recorrido;
+    }
+
+    public ListaEnlazada<T> inorden() {
+        ListaEnlazada<T> recorrido = new ListaEnlazada<>();
+        inorden(raiz, recorrido);
+        return recorrido;
+    }
+
+    public ListaEnlazada<T> postorden() {
+        ListaEnlazada<T> recorrido = new ListaEnlazada<>();
+        postorden(raiz, recorrido);
+        return recorrido;
+    }
+
+    public ListaEnlazada<T> porNiveles() {
+        ListaEnlazada<T> recorrido = new ListaEnlazada<>();
+        if (raiz == null) {
+            return recorrido;
+        }
+        Cola<Nodo<T>> cola = new ColaEnlazada<>();
+        cola.encolar(raiz);
+        while (!cola.estaVacia()) {
+            Nodo<T> actual = cola.desencolar();
+            recorrido.insertarAlFinal(actual.dato);
+            if (actual.izquierdo != null) {
+                cola.encolar(actual.izquierdo);
+            }
+            if (actual.derecho != null) {
+                cola.encolar(actual.derecho);
+            }
+        }
+        return recorrido;
+    }
+
+    /**
+     * Hijo izquierdo y después el derecho del dato.
+     * La lista queda vacía si el dato no está o si el nodo es hoja.
+     */
+    public ListaEnlazada<T> hijos(T dato) {
+        ListaEnlazada<T> hijos = new ListaEnlazada<>();
+        if (dato == null || raiz == null) {
+            return hijos;
+        }
+        Nodo<T> nodo = buscarNodo(raiz, dato);
+        if (nodo == null) {
+            return hijos;
+        }
+        if (nodo.izquierdo != null) {
+            hijos.insertarAlFinal(nodo.izquierdo.dato);
+        }
+        if (nodo.derecho != null) {
+            hijos.insertarAlFinal(nodo.derecho.dato);
+        }
+        return hijos;
+    }
+
+    @Override
+    public String toString() {
+        return inorden().toString();
+    }
+
+    private boolean insertar(Nodo<T> nodo, T dato) {
+        int comparacion = comparar(dato, nodo.dato);
+        if (comparacion == 0) {
+            return false;
+        }
+        if (comparacion < 0) {
+            if (nodo.izquierdo == null) {
+                nodo.izquierdo = new Nodo<>(dato);
+                return true;
+            }
+            return insertar(nodo.izquierdo, dato);
+        }
+        if (nodo.derecho == null) {
+            nodo.derecho = new Nodo<>(dato);
+            return true;
+        }
+        return insertar(nodo.derecho, dato);
+    }
+
+    private Nodo<T> eliminar(Nodo<T> nodo, T dato) {
+        if (nodo == null) {
+            return null;
+        }
+        int comparacion = comparar(dato, nodo.dato);
+        if (comparacion < 0) {
+            nodo.izquierdo = eliminar(nodo.izquierdo, dato);
+        } else if (comparacion > 0) {
+            nodo.derecho = eliminar(nodo.derecho, dato);
+        } else if (nodo.izquierdo == null) {
+            return nodo.derecho;
+        } else if (nodo.derecho == null) {
+            return nodo.izquierdo;
+        } else {
+            Nodo<T> sucesor = minimo(nodo.derecho);
+            nodo.dato = sucesor.dato;
+            nodo.derecho = eliminar(nodo.derecho, sucesor.dato);
+        }
+        return nodo;
+    }
+
+    private Nodo<T> buscarNodo(Nodo<T> nodo, T dato) {
+        if (nodo == null) {
+            return null;
+        }
+        int comparacion = comparar(dato, nodo.dato);
+        if (comparacion == 0) {
+            return nodo;
+        }
+        if (comparacion < 0) {
+            return buscarNodo(nodo.izquierdo, dato);
+        }
+        return buscarNodo(nodo.derecho, dato);
+    }
+
+    private Nodo<T> minimo(Nodo<T> nodo) {
+        Nodo<T> actual = nodo;
+        while (actual.izquierdo != null) {
+            actual = actual.izquierdo;
+        }
+        return actual;
+    }
+
+    private int altura(Nodo<T> nodo) {
+        if (nodo == null) {
+            return 0;
+        }
+        return 1 + Math.max(altura(nodo.izquierdo), altura(nodo.derecho));
+    }
+
+    private int contarHojas(Nodo<T> nodo) {
+        if (nodo == null) {
+            return 0;
+        }
+        if (nodo.izquierdo == null && nodo.derecho == null) {
+            return 1;
+        }
+        return contarHojas(nodo.izquierdo) + contarHojas(nodo.derecho);
+    }
+
+    private void preorden(Nodo<T> nodo, ListaEnlazada<T> recorrido) {
+        if (nodo == null) {
+            return;
+        }
+        recorrido.insertarAlFinal(nodo.dato);
+        preorden(nodo.izquierdo, recorrido);
+        preorden(nodo.derecho, recorrido);
+    }
+
+    private void inorden(Nodo<T> nodo, ListaEnlazada<T> recorrido) {
+        if (nodo == null) {
+            return;
+        }
+        inorden(nodo.izquierdo, recorrido);
+        recorrido.insertarAlFinal(nodo.dato);
+        inorden(nodo.derecho, recorrido);
+    }
+
+    private void postorden(Nodo<T> nodo, ListaEnlazada<T> recorrido) {
+        if (nodo == null) {
+            return;
+        }
+        postorden(nodo.izquierdo, recorrido);
+        postorden(nodo.derecho, recorrido);
+        recorrido.insertarAlFinal(nodo.dato);
+    }
+
+    @SuppressWarnings("unchecked")
+    private int comparar(T a, T b) {
+        if (!(a instanceof Comparable<?>)) {
+            throw new IllegalArgumentException("El dato debe poder ordenarse con compareTo.");
+        }
+        return ((Comparable<? super T>) a).compareTo(b);
+    }
+
+    private static <T> void validar(T dato) {
+        if (dato == null) {
+            throw new IllegalArgumentException("El dato no puede ser nulo.");
+        }
+    }
+
+    private static final class Nodo<T> {
+        private T dato;
+        private Nodo<T> izquierdo;
+        private Nodo<T> derecho;
+
+        private Nodo(T dato) {
+            this.dato = dato;
+        }
+    }
+}
