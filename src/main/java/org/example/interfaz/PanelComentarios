@@ -1,10 +1,8 @@
-
 package org.example.interfaz;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Font;
-import java.awt.FlowLayout;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -14,135 +12,105 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
-import org.example.estructuradedatos.ListaDoblementeEnlazada;
+import org.example.redsocial.comentario.Comentario;
+import org.example.redsocial.comentario.HiloComentarios;
 
-/** Pantalla de gestión dinámica de comentarios. */
+/**
+ * Pantalla para gestionar el hilo de comentarios.
+ */
 public class PanelComentarios extends JPanel {
 
     private final Runnable alVolver;
+    private final HiloComentarios hilo;
 
-    private final ListaDoblementeEnlazada<Comentario> comentarios;
-
-    private ListaDoblementeEnlazada<Comentario>.Posicion posicion;
-
-    private final JLabel autor;
-    private final JLabel numero;
+    private final JLabel posicionTexto;
+    private final JTextArea comentarioActual;
+    private final JTextField autor;
     private final JTextArea contenido;
-    private final JTextArea nuevoComentario;
 
     private final JButton anterior;
     private final JButton siguiente;
-    private final JButton responder;
     private final JButton eliminar;
+    private final JButton responder;
 
     public PanelComentarios(Runnable alVolver) {
-
         this.alVolver = alVolver;
+        this.hilo = new HiloComentarios();
 
-        comentarios = new ListaDoblementeEnlazada<>();
+        this.posicionTexto = texto("Sin comentarios", 14, Paleta.TEXTO_SECUNDARIO);
 
-        // Comentarios iniciales para probar la interfaz.
-        comentarios.insertarAlFinal(new Comentario(
-                "Carlos", "¡Qué buena publicación!"));
+        this.comentarioActual = new JTextArea(8, 30);
+        comentarioActual.setEditable(false);
+        comentarioActual.setLineWrap(true);
+        comentarioActual.setWrapStyleWord(true);
+        comentarioActual.setBackground(Paleta.TARJETA);
+        comentarioActual.setForeground(Paleta.TEXTO);
+        comentarioActual.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 16));
 
-        comentarios.insertarAlFinal(new Comentario(
-                "María", "Me gusta mucho esta idea."));
-
-        comentarios.insertarAlFinal(new Comentario(
-                "Luis", "Totalmente de acuerdo."));
-
-        posicion = comentarios.posicionInicial();
-
-        autor = new JLabel();
-        numero = new JLabel();
-
-        contenido = new JTextArea(5, 30);
-        contenido.setEditable(false);
+        this.autor = new JTextField("Usuario");
+        this.contenido = new JTextArea(3, 30);
         contenido.setLineWrap(true);
         contenido.setWrapStyleWord(true);
         contenido.setBackground(Paleta.TARJETA);
         contenido.setForeground(Paleta.TEXTO);
-        contenido.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 17));
-        contenido.setBorder(new EmptyBorder(8, 8, 8, 8));
+        contenido.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 15));
 
-        nuevoComentario = new JTextArea(3, 30);
-        nuevoComentario.setLineWrap(true);
-        nuevoComentario.setWrapStyleWord(true);
-        nuevoComentario.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 15));
-        nuevoComentario.setBackground(Paleta.TARJETA);
-        nuevoComentario.setForeground(Paleta.TEXTO);
-        nuevoComentario.setBorder(new EmptyBorder(10, 10, 10, 10));
-
-        anterior = new JButton("← Anterior");
-        siguiente = new JButton("Siguiente →");
-        responder = new JButton("Responder");
-        eliminar = new JButton("Eliminar");
+        this.anterior = new JButton("Anterior");
+        this.siguiente = new JButton("Siguiente");
+        this.eliminar = new JButton("Eliminar");
+        this.responder = new JButton("Responder");
 
         armar();
         actualizar();
     }
 
     private void armar() {
-
         setLayout(new BorderLayout());
         setBackground(Paleta.FONDO);
         setBorder(new EmptyBorder(28, 32, 32, 32));
 
         JPanel columna = new JPanel();
-
         columna.setLayout(new BoxLayout(columna, BoxLayout.Y_AXIS));
         columna.setBackground(Paleta.FONDO);
 
+        columna.add(texto("Comentarios", 14, Paleta.TEXTO_SECUNDARIO));
+        columna.add(Box.createVerticalStrut(8));
+        columna.add(texto("Hilo de comentarios", 28, Paleta.TEXTO));
+        columna.add(Box.createVerticalStrut(8));
         columna.add(texto(
-                "Lista Doblemente Enlazada", 14,
+                "Agrega comentarios, responde y navega por el hilo.",
+                16,
                 Paleta.TEXTO_SECUNDARIO));
+        columna.add(Box.createVerticalStrut(20));
 
-        columna.add(Box.createVerticalStrut(8));
-
-        columna.add(texto(
-                "Comentarios", 28, Paleta.TEXTO));
-
-        columna.add(Box.createVerticalStrut(8));
-
-        columna.add(texto(
-                "Navega, responde y administra los comentarios.",
-                16, Paleta.TEXTO_SECUNDARIO));
-
-        columna.add(Box.createVerticalStrut(24));
-
+        columna.add(posicionTexto);
+        columna.add(Box.createVerticalStrut(10));
         columna.add(cajaComentario());
-
-        columna.add(Box.createVerticalStrut(16));
-
+        columna.add(Box.createVerticalStrut(12));
         columna.add(filaNavegacion());
-
         columna.add(Box.createVerticalStrut(24));
 
-        columna.add(texto(
-                "Escribe un comentario o respuesta",
-                16, Paleta.TEXTO));
-
-        columna.add(Box.createVerticalStrut(8));
-
-        columna.add(cajaNuevoComentario());
+        columna.add(texto("Autor", 14, Paleta.TEXTO_SECUNDARIO));
+        columna.add(Box.createVerticalStrut(6));
+        autor.setMaximumSize(new java.awt.Dimension(Integer.MAX_VALUE, 36));
+        columna.add(autor);
 
         columna.add(Box.createVerticalStrut(12));
-
+        columna.add(texto("Contenido del comentario", 14, Paleta.TEXTO_SECUNDARIO));
+        columna.add(Box.createVerticalStrut(6));
+        columna.add(cajaContenido());
+        columna.add(Box.createVerticalStrut(12));
         columna.add(filaAcciones());
-
-        columna.add(Box.createVerticalStrut(16));
 
         JButton volver = new JButton("Volver");
         estilo(volver);
-
         volver.setAlignmentX(Component.LEFT_ALIGNMENT);
-
         volver.addActionListener(evento -> alVolver.run());
 
         JScrollPane scroll = new JScrollPane(columna);
-
         scroll.setBorder(BorderFactory.createEmptyBorder());
         scroll.setBackground(Paleta.FONDO);
         scroll.getViewport().setBackground(Paleta.FONDO);
@@ -150,255 +118,158 @@ public class PanelComentarios extends JPanel {
         add(scroll, BorderLayout.CENTER);
 
         JPanel sur = new JPanel(new BorderLayout());
-
         sur.setBackground(Paleta.FONDO);
         sur.setBorder(new EmptyBorder(16, 0, 0, 0));
-
         sur.add(volver, BorderLayout.WEST);
 
         add(sur, BorderLayout.SOUTH);
     }
 
     private JPanel cajaComentario() {
-
         JPanel caja = new JPanel(new BorderLayout());
-
         caja.setBackground(Paleta.TARJETA);
         caja.setBorder(bordeCaja());
-        caja.setAlignmentX(Component.LEFT_ALIGNMENT);
+        caja.add(comentarioActual, BorderLayout.CENTER);
+        return caja;
+    }
 
-        autor.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 18));
-        autor.setForeground(Paleta.TEXTO);
-
-        numero.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 13));
-        numero.setForeground(Paleta.TEXTO_SECUNDARIO);
-
-        JPanel encabezado = new JPanel(new BorderLayout());
-
-        encabezado.setBackground(Paleta.TARJETA);
-
-        encabezado.add(autor, BorderLayout.WEST);
-        encabezado.add(numero, BorderLayout.EAST);
-
-        caja.add(encabezado, BorderLayout.NORTH);
-        caja.add(contenido, BorderLayout.CENTER);
-
+    private JPanel cajaContenido() {
+        JPanel caja = new JPanel(new BorderLayout());
+        caja.setBackground(Paleta.TARJETA);
+        caja.setBorder(bordeCaja());
+        caja.add(new JScrollPane(contenido), BorderLayout.CENTER);
         return caja;
     }
 
     private JPanel filaNavegacion() {
-
-        JPanel fila = new JPanel(new FlowLayout(FlowLayout.CENTER, 12, 0));
-
+        JPanel fila = new JPanel();
+        fila.setLayout(new BoxLayout(fila, BoxLayout.X_AXIS));
         fila.setBackground(Paleta.FONDO);
         fila.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         estilo(anterior);
         estilo(siguiente);
-
-        anterior.addActionListener(evento -> retroceder());
-        siguiente.addActionListener(evento -> avanzar());
-
-        fila.add(anterior);
-        fila.add(siguiente);
-
-        return fila;
-    }
-
-    private JPanel cajaNuevoComentario() {
-
-        JPanel caja = new JPanel(new BorderLayout());
-
-        caja.setBackground(Paleta.TARJETA);
-        caja.setBorder(bordeCaja());
-        caja.setAlignmentX(Component.LEFT_ALIGNMENT);
-
-        caja.add(nuevoComentario, BorderLayout.CENTER);
-
-        return caja;
-    }
-
-    private JPanel filaAcciones() {
-
-        JPanel fila = new JPanel(new FlowLayout(FlowLayout.LEFT, 12, 0));
-
-        fila.setBackground(Paleta.FONDO);
-        fila.setAlignmentX(Component.LEFT_ALIGNMENT);
-
-        estilo(responder);
         estilo(eliminar);
 
-        responder.addActionListener(evento -> insertar());
-        eliminar.addActionListener(evento -> borrar());
+        anterior.addActionListener(evento -> {
+            hilo.anterior();
+            actualizar();
+        });
 
-        fila.add(responder);
+        siguiente.addActionListener(evento -> {
+            hilo.siguiente();
+            actualizar();
+        });
+
+        eliminar.addActionListener(evento -> {
+            hilo.eliminarActual();
+            actualizar();
+        });
+
+        fila.add(anterior);
+        fila.add(Box.createHorizontalStrut(8));
+        fila.add(siguiente);
+        fila.add(Box.createHorizontalStrut(8));
         fila.add(eliminar);
 
         return fila;
     }
 
-    // Avanza al siguiente comentario.
-    private void avanzar() {
+    private JPanel filaAcciones() {
+        JPanel fila = new JPanel();
+        fila.setLayout(new BoxLayout(fila, BoxLayout.X_AXIS));
+        fila.setBackground(Paleta.FONDO);
+        fila.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        posicion.avanzar();
+        JButton agregar = new JButton("Agregar comentario");
+        estilo(agregar);
+        estilo(responder);
 
-        actualizar();
+        agregar.addActionListener(evento -> agregarComentario());
+
+        responder.addActionListener(evento -> responderComentario());
+
+        fila.add(agregar);
+        fila.add(Box.createHorizontalStrut(8));
+        fila.add(responder);
+
+        return fila;
     }
 
-    // Retrocede al comentario anterior.
-    private void retroceder() {
+    private void agregarComentario() {
+        String nombre = autor.getText().trim();
+        String texto = contenido.getText().trim();
 
-        posicion.retroceder();
-
-        actualizar();
-    }
-
-    // Inserta una respuesta después del comentario actual.
-    private void insertar() {
-
-        String texto = nuevoComentario.getText().trim();
-
-        if (texto.isEmpty()) {
+        if (nombre.isEmpty() || texto.isEmpty()) {
             return;
         }
 
-        Comentario comentario = new Comentario("Tú", texto);
+        hilo.agregarComentario(nombre, texto);
 
-        posicion.insertarDespues(comentario);
-
-        // Avanza para mostrar el comentario recién insertado.
-        posicion.avanzar();
-
-        nuevoComentario.setText("");
-
+        contenido.setText("");
         actualizar();
     }
 
-    // Elimina el comentario seleccionado.
-    private void borrar() {
+    private void responderComentario() {
+        String nombre = autor.getText().trim();
+        String texto = contenido.getText().trim();
 
-        if (posicion.ver() == null) {
+        if (nombre.isEmpty() || texto.isEmpty()) {
             return;
         }
 
-        posicion.eliminar();
+        hilo.responder(nombre, texto);
 
+        contenido.setText("");
         actualizar();
     }
 
-    // Actualiza la información mostrada en pantalla.
     private void actualizar() {
+        Comentario actual = hilo.obtenerActual();
 
-        Comentario comentario = posicion.ver();
+        if (actual == null) {
+            posicionTexto.setText("Sin comentarios");
+            comentarioActual.setText("Todavía no hay comentarios.");
+        } else {
+            posicionTexto.setText(
+                    "Comentario " + hilo.obtenerPosicion()
+                    + " de " + hilo.obtenerCantidad());
 
-        if (comentario == null) {
-
-            autor.setText("Sin comentarios");
-            numero.setText("0 / 0");
-            contenido.setText("Todavía no hay comentarios.");
-
-            anterior.setEnabled(false);
-            siguiente.setEnabled(false);
-            eliminar.setEnabled(false);
-            responder.setEnabled(true);
-
-            return;
+            comentarioActual.setText(
+                    actual.getAutor() + ":\n\n"
+                    + actual.getContenido());
         }
 
-        autor.setText(comentario.getAutor());
-
-        contenido.setText(comentario.getTexto());
-
-        numero.setText(
-                posicion.getPosicion() + " / " + comentarios.tamano());
-
-        anterior.setEnabled(posicion.getPosicion() > 1);
-
-        siguiente.setEnabled(
-                posicion.getPosicion() < comentarios.tamano());
-
-        eliminar.setEnabled(true);
-        responder.setEnabled(true);
-    }
-
-    private JLabel texto(
-            String contenido, int tamano, java.awt.Color color) {
-
-        JLabel etiqueta = new JLabel(contenido);
-
-        etiqueta.setForeground(color);
-
-        etiqueta.setFont(
-                new Font(Font.SANS_SERIF, Font.PLAIN, tamano));
-
-        etiqueta.setAlignmentX(Component.LEFT_ALIGNMENT);
-
-        return etiqueta;
+        anterior.setEnabled(!hilo.estaVacio());
+        siguiente.setEnabled(!hilo.estaVacio());
+        eliminar.setEnabled(!hilo.estaVacio());
+        responder.setEnabled(!hilo.estaVacio());
     }
 
     private javax.swing.border.Border bordeCaja() {
-
         return BorderFactory.createCompoundBorder(
-
                 BorderFactory.createLineBorder(Paleta.BORDE),
-
                 new EmptyBorder(16, 16, 16, 16));
     }
 
-    private void estilo(JButton boton) {
+    private JLabel texto(String contenido, int tamano, java.awt.Color color) {
+        JLabel etiqueta = new JLabel(contenido);
+        etiqueta.setForeground(color);
+        etiqueta.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, tamano));
+        etiqueta.setAlignmentX(Component.LEFT_ALIGNMENT);
+        return etiqueta;
+    }
 
+    private void estilo(JButton boton) {
         boton.setBackground(Paleta.BOTON);
         boton.setForeground(Paleta.TEXTO);
-
-        boton.setFont(
-                new Font(Font.SANS_SERIF, Font.PLAIN, 15));
-
+        boton.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 15));
         boton.setFocusPainted(false);
-
         boton.setBorder(BorderFactory.createCompoundBorder(
-
                 BorderFactory.createLineBorder(Paleta.BORDE),
-
-                new EmptyBorder(10, 14, 10, 14)));
-
+                new EmptyBorder(12, 14, 12, 14)));
         boton.setCursor(
                 java.awt.Cursor.getPredefinedCursor(
                         java.awt.Cursor.HAND_CURSOR));
-        
-        boton.setOpaque(true);
-
-boton.addMouseListener(new java.awt.event.MouseAdapter() {
-
-    @Override
-    public void mouseEntered(java.awt.event.MouseEvent e) {
-        boton.setBackground(Paleta.BOTON_HOVER);
-    }
-
-    @Override
-    public void mouseExited(java.awt.event.MouseEvent e) {
-        boton.setBackground(Paleta.BOTON);
-    }
-});
-    }
-
-    // Representa un comentario de la publicación.
-    private static class Comentario {
-
-        private final String autor;
-        private final String texto;
-
-        public Comentario(String autor, String texto) {
-
-            this.autor = autor;
-            this.texto = texto;
-        }
-
-        public String getAutor() {
-            return autor;
-        }
-
-        public String getTexto() {
-            return texto;
-        }
     }
 }
