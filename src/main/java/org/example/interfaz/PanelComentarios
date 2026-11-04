@@ -3,7 +3,6 @@ package org.example.interfaz;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Font;
-
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
