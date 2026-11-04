@@ -1,7 +1,6 @@
 package org.example.practicas.NPCDecision;
 
 import org.example.estructuradedatos.ArbolDecision;
-import org.example.estructuradedatos.ArbolDecision.Nodo;
 
 /**
  * Reglas del NPC. La salud abre el árbol: con más de 30 % ataca,
@@ -9,52 +8,34 @@ import org.example.estructuradedatos.ArbolDecision.Nodo;
  */
 public class CerebroNPC {
 
-    private final ArbolDecision decisiones;
+    private final ArbolDecision<EstadoNPC, AccionNPC> decisiones;
 
     public CerebroNPC() {
-        Nodo cuerpoACuerpo = Nodo.hoja("Ataque cuerpo a cuerpo");
-        Nodo disparar = Nodo.hoja("Disparar arma");
-        Nodo granada = Nodo.hoja("Lanzar granada");
-        Nodo cubrirse = Nodo.hoja("Cubrirse y recargar escudos");
-        Nodo huir = Nodo.hoja("Huir a lo loco");
+        ArbolDecision<EstadoNPC, AccionNPC> cuerpoACuerpo = ArbolDecision.hoja(AccionNPC.ATAQUE_CUERPO_A_CUERPO);
+        ArbolDecision<EstadoNPC, AccionNPC> disparar = ArbolDecision.hoja(AccionNPC.DISPARAR_ARMA);
+        ArbolDecision<EstadoNPC, AccionNPC> granada = ArbolDecision.hoja(AccionNPC.LANZAR_GRANADA);
+        ArbolDecision<EstadoNPC, AccionNPC> cubrirse = ArbolDecision.hoja(AccionNPC.CUBRIRSE);
+        ArbolDecision<EstadoNPC, AccionNPC> huir = ArbolDecision.hoja(AccionNPC.HUIR);
 
-        Nodo municion = Nodo.pregunta("municion", disparar, granada);
-        Nodo distancia = Nodo.pregunta("distancia", cuerpoACuerpo, municion);
-        Nodo cobertura = Nodo.pregunta("cobertura", cubrirse, huir);
-        Nodo salud = Nodo.pregunta("salud", distancia, cobertura);
-        this.decisiones = new ArbolDecision(salud);
+        ArbolDecision<EstadoNPC, AccionNPC> municion = ArbolDecision.pregunta(
+                estado -> estado.isMunicionDisponible(),
+                disparar,
+                granada);
+        ArbolDecision<EstadoNPC, AccionNPC> distancia = ArbolDecision.pregunta(
+                estado -> estado.getDistanciaAlJugador() < 5,
+                cuerpoACuerpo,
+                municion);
+        ArbolDecision<EstadoNPC, AccionNPC> cobertura = ArbolDecision.pregunta(
+                estado -> estado.isTieneCoberturaCerca(),
+                cubrirse,
+                huir);
+        this.decisiones = ArbolDecision.pregunta(
+                estado -> estado.getPorcentajeSalud() > 30,
+                distancia,
+                cobertura);
     }
 
-    public String decidir(EstadoNPC estado) {
-        if (estado == null) {
-            throw new IllegalArgumentException("El estado no puede ser nulo.");
-        }
-        return decidir(decisiones.getRaiz(), estado);
-    }
-
-    private String decidir(Nodo nodo, EstadoNPC estado) {
-        if (nodo.esHoja()) {
-            return nodo.getResultado();
-        }
-        if (seCumple(nodo.getPregunta(), estado)) {
-            return decidir(nodo.getIzquierdo(), estado);
-        }
-        return decidir(nodo.getDerecho(), estado);
-    }
-
-    private boolean seCumple(String pregunta, EstadoNPC estado) {
-        if (pregunta.equals("salud")) {
-            return estado.getPorcentajeSalud() > 30;
-        }
-        if (pregunta.equals("distancia")) {
-            return estado.getDistanciaAlJugador() < 5;
-        }
-        if (pregunta.equals("municion")) {
-            return estado.isMunicionDisponible();
-        }
-        if (pregunta.equals("cobertura")) {
-            return estado.isTieneCoberturaCerca();
-        }
-        throw new IllegalArgumentException("Pregunta desconocida: " + pregunta);
+    public AccionNPC decidir(EstadoNPC estado) {
+        return decisiones.decidir(estado);
     }
 }
