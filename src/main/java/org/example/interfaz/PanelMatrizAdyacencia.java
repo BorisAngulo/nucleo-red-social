@@ -25,7 +25,7 @@ public class PanelMatrizAdyacencia extends JPanel {
 
     private final Runnable alVolver;
     private final CatalogoUsuariosMatriz catalogo = new CatalogoUsuariosMatriz();
-    private final JTextField nombreUsuario = new JTextField(16);
+    private final JTextField nombreUsuario = new JTextField(5); // Mantén tu tamaño compacto preferido
     private final JComboBox<UsuarioMatriz> origen = new JComboBox<>();
     private final JComboBox<UsuarioMatriz> destino = new JComboBox<>();
     private final JComboBox<String> tipoConexion = new JComboBox<>(new String[]{"Seguir", "Amistad"});
@@ -107,8 +107,14 @@ public class PanelMatrizAdyacencia extends JPanel {
         nombreUsuario.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 14));
         nombreUsuario.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(Paleta.BORDE), new EmptyBorder(4, 8, 4, 8)));
+
+        // Limitamos el tamaño para que BoxLayout no lo estire verticalmente
+        nombreUsuario.setPreferredSize(new java.awt.Dimension(180, 35));
+        nombreUsuario.setMaximumSize(new java.awt.Dimension(200, 35));
+
         JButton agregar = boton("Agregar usuario");
         agregar.addActionListener(evento -> agregarUsuario());
+
         fila.add(nombreUsuario);
         fila.add(Box.createHorizontalStrut(8));
         fila.add(agregar);
@@ -142,11 +148,15 @@ public class PanelMatrizAdyacencia extends JPanel {
 
     private JPanel filaConsulta() {
         JPanel fila = fila();
-        JButton consultar = boton("Consultar vecinos");
-        consultar.addActionListener(evento -> mostrarVecinos());
         fila.add(texto("Usuario:", 14, Paleta.TEXTO_SECUNDARIO));
         fila.add(Box.createHorizontalStrut(8));
-        fila.add(consultar);
+        JButton seguidos = boton("Ver seguidos");
+        seguidos.addActionListener(evento -> mostrarRelaciones(true));
+        fila.add(seguidos);
+        fila.add(Box.createHorizontalStrut(6));
+        JButton seguidores = boton("Ver seguidores");
+        seguidores.addActionListener(evento -> mostrarRelaciones(false));
+        fila.add(seguidores);
         return fila;
     }
 
@@ -196,27 +206,31 @@ public class PanelMatrizAdyacencia extends JPanel {
         }
     }
 
-    private void mostrarVecinos() {
+    private void mostrarRelaciones(boolean mostrarSeguidos) {
         UsuarioMatriz seleccionado = (UsuarioMatriz) origen.getSelectedItem();
         if (seleccionado == null) {
             mostrarError("No hay usuarios en el catálogo.");
             return;
         }
-        StringBuilder texto = new StringBuilder("Vecinos de ").append(seleccionado.getNombre()).append(": ");
-        ListaEnlazada<UsuarioMatriz> vecinos = catalogo.obtenerVecinos(seleccionado);
-        if (vecinos.estaVacia()) {
+        String relacion = mostrarSeguidos ? ", sigues a: " : ", te siguen: ";
+        StringBuilder texto = new StringBuilder(seleccionado.getNombre()).append(relacion);
+        ListaEnlazada<UsuarioMatriz> usuariosRelacionados = mostrarSeguidos
+                ? catalogo.obtenerSeguidos(seleccionado)
+                : catalogo.obtenerSeguidores(seleccionado);
+        if (usuariosRelacionados.estaVacia()) {
             texto.append("ninguno");
         } else {
             boolean primero = true;
-            for (UsuarioMatriz vecino : vecinos) {
+            for (UsuarioMatriz usuario : usuariosRelacionados) {
                 if (!primero) {
                     texto.append(", ");
                 }
-                texto.append(vecino.getNombre());
+                texto.append(usuario.getNombre());
                 primero = false;
             }
         }
-        JOptionPane.showMessageDialog(this, texto.toString(), "Vecinos directos", JOptionPane.INFORMATION_MESSAGE);
+        JOptionPane.showMessageDialog(this, texto.toString(),
+                mostrarSeguidos ? "Seguidos" : "Seguidores", JOptionPane.INFORMATION_MESSAGE);
     }
 
     private void actualizar() {
@@ -275,6 +289,14 @@ public class PanelMatrizAdyacencia extends JPanel {
         combo.setBackground(Paleta.BOTON);
         combo.setForeground(Paleta.TEXTO);
         combo.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 14));
+
+        // Limitamos la altura y el ancho para que no se estiren verticalmente
+        combo.setPreferredSize(new java.awt.Dimension(140, 35));
+        combo.setMaximumSize(new java.awt.Dimension(160, 35));
+
+        // Estilo opcional para el borde si deseas que combine con los botones
+        combo.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(Paleta.BORDE), new EmptyBorder(4, 6, 4, 6)));
     }
 
     private JButton boton(String titulo) {
