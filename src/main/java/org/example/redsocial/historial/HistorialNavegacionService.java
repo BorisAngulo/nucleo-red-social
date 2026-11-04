@@ -127,3 +127,4 @@ public class HistorialNavegacionService {
         pilaAtras.apilar(new EntradaHistorial("adrian_martinez", "Perfil"));
     }
 }
+

@@ -24,35 +24,35 @@ import org.example.redsocial.historial.EntradaHistorial;
 import org.example.redsocial.historial.HistorialNavegacionService;
 
 /**
- * Pantalla Swing interactiva para el Historial de Navegación y Búsquedas Recientes.
- * Implementa dos Pilas (Atrás y Adelante) siguiendo la estructura de datos LIFO.
+ * Pantalla interactiva del Historial de Navegación.
+ * Diseñada de forma visual, limpia y muy fácil de entender.
  */
 public class PanelHistorialNavegacion extends JPanel {
 
     private final Runnable alVolver;
     private final HistorialNavegacionService servicio = new HistorialNavegacionService();
 
-    // Controles de navegación
+    // Botones principales
     private final JButton btnAtras = PanelPublicaciones.crearBoton("◀ Atrás");
     private final JButton btnAdelante = PanelPublicaciones.crearBoton("▶ Adelante");
-    private final JTextField txtBarraDireccion = new JTextField();
+    private final JTextField txtBarra = new JTextField();
 
-    // Componentes de visualización
+    // Contenedores visuales
     private final JPanel tarjetaActual = new JPanel(new BorderLayout(14, 0));
     private final JPanel contenedorAtras = new JPanel();
     private final JPanel contenedorAdelante = new JPanel();
-    private final JLabel lblContadorAtras = new JLabel();
-    private final JLabel lblContadorAdelante = new JLabel();
+    private final JLabel lblTotalAtras = new JLabel();
+    private final JLabel lblTotalAdelante = new JLabel();
 
     public PanelHistorialNavegacion(Runnable alVolver) {
         this.alVolver = alVolver;
 
-        setLayout(new BorderLayout(0, 14));
+        setLayout(new BorderLayout(0, 16));
         setBackground(Paleta.FONDO);
         setBorder(BorderFactory.createEmptyBorder(20, 24, 20, 24));
 
         add(crearBarraSuperior(), BorderLayout.NORTH);
-        add(crearPanelCentral(), BorderLayout.CENTER);
+        add(crearCuerpoCentral(), BorderLayout.CENTER);
 
         actualizarTodo();
     }
@@ -62,29 +62,34 @@ public class PanelHistorialNavegacion extends JPanel {
         barra.setLayout(new BoxLayout(barra, BoxLayout.Y_AXIS));
         barra.setBackground(Paleta.FONDO);
 
-        // Fila 1: Botón Volver + Título
-        JPanel filaTitulo = new JPanel(new FlowLayout(FlowLayout.LEFT, 12, 0));
-        filaTitulo.setBackground(Paleta.FONDO);
+        // Fila 1: Volver + Título
+        JPanel fila1 = new JPanel(new FlowLayout(FlowLayout.LEFT, 12, 0));
+        fila1.setBackground(Paleta.FONDO);
 
         JButton btnVolver = PanelPublicaciones.crearBoton("← Volver al Menú");
         btnVolver.addActionListener(e -> {
             if (alVolver != null) alVolver.run();
         });
 
-        JLabel lblTitulo = new JLabel("Historial de Navegación y Búsquedas (Pila LIFO)");
+        JLabel lblTitulo = new JLabel("Historial de Navegación");
         lblTitulo.setFont(new Font("SansSerif", Font.BOLD, 22));
         lblTitulo.setForeground(Paleta.TEXTO);
 
-        filaTitulo.add(btnVolver);
-        filaTitulo.add(lblTitulo);
+        JLabel lblSub = new JLabel("(Ejemplo práctico de Pila: lo último que visitas queda arriba)");
+        lblSub.setFont(new Font("SansSerif", Font.PLAIN, 13));
+        lblSub.setForeground(Paleta.TEXTO_SECUNDARIO);
 
-        // Fila 2: Barra de Dirección estilo Navegador Web (Atrás, Adelante, Input, Botones)
-        JPanel filaNavegador = new JPanel(new BorderLayout(8, 0));
-        filaNavegador.setBackground(Paleta.FONDO);
-        filaNavegador.setBorder(BorderFactory.createEmptyBorder(10, 0, 6, 0));
+        fila1.add(btnVolver);
+        fila1.add(lblTitulo);
+        fila1.add(lblSub);
 
-        JPanel botonesNav = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 0));
-        botonesNav.setBackground(Paleta.FONDO);
+        // Fila 2: Barra tipo navegador
+        JPanel fila2 = new JPanel(new BorderLayout(8, 0));
+        fila2.setBackground(Paleta.FONDO);
+        fila2.setBorder(BorderFactory.createEmptyBorder(10, 0, 8, 0));
+
+        JPanel navBotones = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 0));
+        navBotones.setBackground(Paleta.FONDO);
 
         btnAtras.setFont(new Font("SansSerif", Font.BOLD, 13));
         btnAtras.addActionListener(e -> {
@@ -98,244 +103,225 @@ public class PanelHistorialNavegacion extends JPanel {
             actualizarTodo();
         });
 
-        botonesNav.add(btnAtras);
-        botonesNav.add(btnAdelante);
+        navBotones.add(btnAtras);
+        navBotones.add(btnAdelante);
 
-        // Campo de texto de la barra de dirección
-        txtBarraDireccion.setBackground(Paleta.TARJETA);
-        txtBarraDireccion.setForeground(Paleta.TEXTO);
-        txtBarraDireccion.setCaretColor(Paleta.TEXTO);
-        txtBarraDireccion.setFont(new Font("SansSerif", Font.PLAIN, 14));
-        txtBarraDireccion.setBorder(BorderFactory.createCompoundBorder(
+        // Input de dirección / búsqueda
+        txtBarra.setBackground(Paleta.TARJETA);
+        txtBarra.setForeground(Paleta.TEXTO);
+        txtBarra.setCaretColor(Paleta.TEXTO);
+        txtBarra.setFont(new Font("SansSerif", Font.PLAIN, 14));
+        txtBarra.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(Paleta.BORDE, 1),
                 BorderFactory.createEmptyBorder(7, 12, 7, 12)
         ));
-        txtBarraDireccion.addActionListener(e -> ejecutarNavegacion("Página"));
+        txtBarra.addActionListener(e -> navegar("Página"));
 
-        // Acciones de navegación rápida
-        JPanel accionesBarra = new JPanel(new FlowLayout(FlowLayout.RIGHT, 6, 0));
-        accionesBarra.setBackground(Paleta.FONDO);
+        // Botones de acción
+        JPanel acciones = new JPanel(new FlowLayout(FlowLayout.RIGHT, 6, 0));
+        acciones.setBackground(Paleta.FONDO);
 
-        JButton btnIr = PanelPublicaciones.crearBoton("🌐 Navegar");
-        btnIr.addActionListener(e -> ejecutarNavegacion("Página"));
+        JButton btnIr = PanelPublicaciones.crearBoton("🔍 Buscar o Ir");
+        btnIr.addActionListener(e -> navegar("Búsqueda"));
 
-        JButton btnBuscar = PanelPublicaciones.crearBoton("🔍 Buscar");
-        btnBuscar.addActionListener(e -> ejecutarNavegacion("Búsqueda"));
-
-        JButton btnPerfil = PanelPublicaciones.crearBoton("👤 Perfil");
-        btnPerfil.addActionListener(e -> ejecutarNavegacion("Perfil"));
-
-        JButton btnLimpiar = PanelPublicaciones.crearBoton("🗑 Limpiar");
+        JButton btnLimpiar = PanelPublicaciones.crearBoton("🗑 Borrar todo");
         btnLimpiar.addActionListener(e -> {
             int confirm = JOptionPane.showConfirmDialog(this,
-                    "¿Deseas vaciar todo el historial de navegación?",
-                    "Limpiar Historial", JOptionPane.YES_NO_OPTION);
+                    "¿Deseas vaciar todo el historial de páginas?",
+                    "Borrar Historial", JOptionPane.YES_NO_OPTION);
             if (confirm == JOptionPane.YES_OPTION) {
                 servicio.vaciarHistorial();
                 actualizarTodo();
             }
         });
 
-        accionesBarra.add(btnIr);
-        accionesBarra.add(btnBuscar);
-        accionesBarra.add(btnPerfil);
-        accionesBarra.add(btnLimpiar);
+        acciones.add(btnIr);
+        acciones.add(btnLimpiar);
 
-        filaNavegador.add(botonesNav, BorderLayout.WEST);
-        filaNavegador.add(txtBarraDireccion, BorderLayout.CENTER);
-        filaNavegador.add(accionesBarra, BorderLayout.EAST);
+        fila2.add(navBotones, BorderLayout.WEST);
+        fila2.add(txtBarra, BorderLayout.CENTER);
+        fila2.add(acciones, BorderLayout.EAST);
 
-        // Fila 3: Accesos directos rápidos
-        JPanel filaAtajos = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 2));
-        filaAtajos.setBackground(Paleta.FONDO);
+        // Fila 3: Atajos fáciles con un solo clic
+        JPanel fila3 = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
+        fila3.setBackground(Paleta.FONDO);
 
-        JLabel lblAtajos = new JLabel("Accesos rápidos:");
-        lblAtajos.setFont(new Font("SansSerif", Font.PLAIN, 12));
-        lblAtajos.setForeground(Paleta.TEXTO_SECUNDARIO);
-        filaAtajos.add(lblAtajos);
+        JLabel lblClicks = new JLabel("Páginas de ejemplo (haz clic para probar):");
+        lblClicks.setFont(new Font("SansSerif", Font.PLAIN, 12));
+        lblClicks.setForeground(Paleta.TEXTO_SECUNDARIO);
+        fila3.add(lblClicks);
 
-        String[][] atajos = {
-            {"🏠 Feed", "redsocial.com/feed", "Página"},
-            {"👤 @adrian", "adrian_martinez", "Perfil"},
-            {"👤 @boris", "boris_angulo", "Perfil"},
-            {"🔥 #tendencias", "#tecnologia_java", "Tendencia"},
-            {"🔍 Amigos", "Buscar conexiones de amigos", "Búsqueda"}
+        String[][] ejemplos = {
+            {"🏠 Inicio / Feed", "redsocial.com/feed", "Página"},
+            {"👤 Perfil de @boris", "boris_angulo", "Perfil"},
+            {"👤 Perfil de @adrian", "adrian_martinez", "Perfil"},
+            {"🔥 #tendencias", "#tendencias_java", "Tendencia"},
+            {"🔍 Buscar amigos", "Buscar amigos de la universidad", "Búsqueda"}
         };
 
-        for (String[] atajo : atajos) {
-            JButton btnChip = crearBotonChip(atajo[0]);
-            btnChip.addActionListener(e -> {
-                servicio.visitar(atajo[1], atajo[2]);
+        for (String[] ej : ejemplos) {
+            JButton chip = crearChip(ej[0]);
+            chip.addActionListener(e -> {
+                servicio.visitar(ej[1], ej[2]);
                 actualizarTodo();
             });
-            filaAtajos.add(btnChip);
+            fila3.add(chip);
         }
 
-        barra.add(filaTitulo);
-        barra.add(filaNavegador);
-        barra.add(filaAtajos);
+        barra.add(fila1);
+        barra.add(fila2);
+        barra.add(fila3);
 
         return barra;
     }
 
-    private JPanel crearPanelCentral() {
-        JPanel central = new JPanel(new BorderLayout(0, 12));
+    private JPanel crearCuerpoCentral() {
+        JPanel central = new JPanel(new BorderLayout(0, 14));
         central.setBackground(Paleta.FONDO);
 
-        // 1. Tarjeta destacada de la Página Actual (Tope de la Pila)
-        configurarTarjetaActual();
+        // 1. Tarjeta superior: ¿Dónde estás parado ahora?
+        tarjetaActual.setBackground(Paleta.TARJETA);
+        tarjetaActual.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(Paleta.BOTON_ACTIVO, 2),
+                BorderFactory.createEmptyBorder(12, 16, 12, 16)
+        ));
         central.add(tarjetaActual, BorderLayout.NORTH);
 
-        // 2. Columnas de las dos pilas (Historial Atrás y Avance Adelante)
-        JPanel columnas = new JPanel(new GridLayout(1, 2, 16, 0));
+        // 2. Dos columnas fáciles de entender
+        JPanel columnas = new JPanel(new GridLayout(1, 2, 18, 0));
         columnas.setBackground(Paleta.FONDO);
 
-        // Columna Izquierda: Pila Atrás
-        JPanel panelColAtras = new JPanel(new BorderLayout(0, 8));
-        panelColAtras.setBackground(Paleta.FONDO);
+        // Columna Izquierda: Historial donde puedes ir con "Atrás"
+        JPanel colAtras = new JPanel(new BorderLayout(0, 8));
+        colAtras.setBackground(Paleta.FONDO);
 
-        JPanel headerAtras = new JPanel(new BorderLayout());
-        headerAtras.setBackground(Paleta.FONDO);
-        JLabel lblTitAtras = new JLabel("📚 Pila de Historial (Atrás — LIFO)");
-        lblTitAtras.setFont(new Font("SansSerif", Font.BOLD, 15));
-        lblTitAtras.setForeground(Paleta.TEXTO);
-        lblContadorAtras.setFont(new Font("SansSerif", Font.PLAIN, 13));
-        lblContadorAtras.setForeground(Paleta.TEXTO_SECUNDARIO);
-        headerAtras.add(lblTitAtras, BorderLayout.WEST);
-        headerAtras.add(lblContadorAtras, BorderLayout.EAST);
+        JPanel headAtras = new JPanel(new BorderLayout());
+        headAtras.setBackground(Paleta.FONDO);
+        JLabel titAtras = new JLabel("⬅️ Historial de páginas visitadas");
+        titAtras.setFont(new Font("SansSerif", Font.BOLD, 15));
+        titAtras.setForeground(Paleta.TEXTO);
+        lblTotalAtras.setFont(new Font("SansSerif", Font.PLAIN, 12));
+        lblTotalAtras.setForeground(Paleta.TEXTO_SECUNDARIO);
+        headAtras.add(titAtras, BorderLayout.WEST);
+        headAtras.add(lblTotalAtras, BorderLayout.EAST);
 
         contenedorAtras.setLayout(new BoxLayout(contenedorAtras, BoxLayout.Y_AXIS));
         contenedorAtras.setBackground(Paleta.FONDO);
         JScrollPane scrollAtras = crearScroll(contenedorAtras);
 
-        panelColAtras.add(headerAtras, BorderLayout.NORTH);
-        panelColAtras.add(scrollAtras, BorderLayout.CENTER);
+        colAtras.add(headAtras, BorderLayout.NORTH);
+        colAtras.add(scrollAtras, BorderLayout.CENTER);
 
-        // Columna Derecha: Pila Adelante
-        JPanel panelColAdelante = new JPanel(new BorderLayout(0, 8));
-        panelColAdelante.setBackground(Paleta.FONDO);
+        // Columna Derecha: Páginas a donde puedes ir con "Adelante"
+        JPanel colAdelante = new JPanel(new BorderLayout(0, 8));
+        colAdelante.setBackground(Paleta.FONDO);
 
-        JPanel headerAdelante = new JPanel(new BorderLayout());
-        headerAdelante.setBackground(Paleta.FONDO);
-        JLabel lblTitAdelante = new JLabel("⏩ Pila de Avance (Adelante)");
-        lblTitAdelante.setFont(new Font("SansSerif", Font.BOLD, 15));
-        lblTitAdelante.setForeground(Paleta.TEXTO);
-        lblContadorAdelante.setFont(new Font("SansSerif", Font.PLAIN, 13));
-        lblContadorAdelante.setForeground(Paleta.TEXTO_SECUNDARIO);
-        headerAdelante.add(lblTitAdelante, BorderLayout.WEST);
-        headerAdelante.add(lblContadorAdelante, BorderLayout.EAST);
+        JPanel headAdelante = new JPanel(new BorderLayout());
+        headAdelante.setBackground(Paleta.FONDO);
+        JLabel titAdelante = new JLabel("➡️ Páginas a donde puedes volver");
+        titAdelante.setFont(new Font("SansSerif", Font.BOLD, 15));
+        titAdelante.setForeground(Paleta.TEXTO);
+        lblTotalAdelante.setFont(new Font("SansSerif", Font.PLAIN, 12));
+        lblTotalAdelante.setForeground(Paleta.TEXTO_SECUNDARIO);
+        headAdelante.add(titAdelante, BorderLayout.WEST);
+        headAdelante.add(lblTotalAdelante, BorderLayout.EAST);
 
         contenedorAdelante.setLayout(new BoxLayout(contenedorAdelante, BoxLayout.Y_AXIS));
         contenedorAdelante.setBackground(Paleta.FONDO);
         JScrollPane scrollAdelante = crearScroll(contenedorAdelante);
 
-        panelColAdelante.add(headerAdelante, BorderLayout.NORTH);
-        panelColAdelante.add(scrollAdelante, BorderLayout.CENTER);
+        colAdelante.add(headAdelante, BorderLayout.NORTH);
+        colAdelante.add(scrollAdelante, BorderLayout.CENTER);
 
-        columnas.add(panelColAtras);
-        columnas.add(panelColAdelante);
+        columnas.add(colAtras);
+        columnas.add(colAdelante);
 
         central.add(columnas, BorderLayout.CENTER);
 
         return central;
     }
 
-    private void configurarTarjetaActual() {
-        tarjetaActual.setBackground(Paleta.TARJETA);
-        tarjetaActual.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(Paleta.BOTON_ACTIVO, 2),
-                BorderFactory.createEmptyBorder(12, 16, 12, 16)
-        ));
-        tarjetaActual.setMaximumSize(new Dimension(Integer.MAX_VALUE, 90));
-    }
-
     public void actualizarTodo() {
         EntradaHistorial actual = servicio.paginaActual();
 
-        // 1. Actualizar barra de dirección
-        if (actual != null) {
-            txtBarraDireccion.setText(actual.getUrlCompleta());
-        } else {
-            txtBarraDireccion.setText("");
-        }
+        // 1. Poner dirección en la barra
+        txtBarra.setText(actual != null ? actual.getUrlCompleta() : "");
 
-        // 2. Habilitar o deshabilitar botones Atrás / Adelante
+        // 2. Activar / Desactivar botones de navegación
         btnAtras.setEnabled(servicio.puedeRetroceder());
         btnAdelante.setEnabled(servicio.puedeAvanzar());
 
-        // 3. Renderizar Tarjeta de Página Actual
+        // 3. Mostrar la tarjeta de la página actual
         tarjetaActual.removeAll();
         if (actual != null) {
-            JPanel infoIzquierda = new JPanel(new FlowLayout(FlowLayout.LEFT, 12, 0));
-            infoIzquierda.setBackground(Paleta.TARJETA);
+            JPanel fila = new JPanel(new FlowLayout(FlowLayout.LEFT, 14, 0));
+            fila.setBackground(Paleta.TARJETA);
 
-            JLabel lblIcono = new JLabel(actual.getIcono());
-            lblIcono.setFont(new Font("SansSerif", Font.PLAIN, 28));
+            JLabel icono = new JLabel(actual.getIcono());
+            icono.setFont(new Font("SansSerif", Font.PLAIN, 28));
 
             JPanel textos = new JPanel();
             textos.setLayout(new BoxLayout(textos, BoxLayout.Y_AXIS));
             textos.setBackground(Paleta.TARJETA);
 
-            JLabel lblBadge = new JLabel("★ [PÁGINA ACTUAL — TOPE DE LA PILA]");
-            lblBadge.setFont(new Font("SansSerif", Font.BOLD, 11));
-            lblBadge.setForeground(Paleta.TEXTO);
+            JLabel cartel = new JLabel("PÁGINA QUE ESTÁS VIENDO AHORA MISMO (Cima de la Pila):");
+            cartel.setFont(new Font("SansSerif", Font.BOLD, 11));
+            cartel.setForeground(Paleta.TEXTO_SECUNDARIO);
 
-            JLabel lblDestino = new JLabel(actual.getDestino());
-            lblDestino.setFont(new Font("SansSerif", Font.BOLD, 17));
-            lblDestino.setForeground(Paleta.TEXTO);
+            JLabel titulo = new JLabel(actual.getDestino());
+            titulo.setFont(new Font("SansSerif", Font.BOLD, 17));
+            titulo.setForeground(Paleta.TEXTO);
 
-            JLabel lblDetalles = new JLabel(String.format("Tipo: %s  |  Protocolo: 🔒 %s  |  Hora: %s",
-                    actual.getTipo(), actual.getSeguridad().toUpperCase(), actual.getHoraVisita()));
-            lblDetalles.setFont(new Font("SansSerif", Font.PLAIN, 12));
-            lblDetalles.setForeground(Paleta.TEXTO_SECUNDARIO);
+            JLabel hora = new JLabel("Tipo: " + actual.getTipo() + "  |  Hora de visita: " + actual.getHoraVisita());
+            hora.setFont(new Font("SansSerif", Font.PLAIN, 12));
+            hora.setForeground(Paleta.TEXTO_SECUNDARIO);
 
-            textos.add(lblBadge);
+            textos.add(cartel);
             textos.add(Box.createVerticalStrut(2));
-            textos.add(lblDestino);
+            textos.add(titulo);
             textos.add(Box.createVerticalStrut(2));
-            textos.add(lblDetalles);
+            textos.add(hora);
 
-            infoIzquierda.add(lblIcono);
-            infoIzquierda.add(textos);
-
-            tarjetaActual.add(infoIzquierda, BorderLayout.CENTER);
+            fila.add(icono);
+            fila.add(textos);
+            tarjetaActual.add(fila, BorderLayout.CENTER);
         } else {
-            JLabel lblVacio = new JLabel("Historial vacío. Navega a una URL o realiza una búsqueda arriba.", JLabel.CENTER);
-            lblVacio.setForeground(Paleta.TEXTO_SECUNDARIO);
-            lblVacio.setFont(new Font("SansSerif", Font.ITALIC, 14));
-            tarjetaActual.add(lblVacio, BorderLayout.CENTER);
+            JLabel vacio = new JLabel("Historial vacío. Elige un ejemplo arriba o escribe algo en la barra.", JLabel.CENTER);
+            vacio.setForeground(Paleta.TEXTO_SECUNDARIO);
+            vacio.setFont(new Font("SansSerif", Font.ITALIC, 14));
+            tarjetaActual.add(vacio, BorderLayout.CENTER);
         }
 
-        // 4. Renderizar Pila Atrás
+        // 4. Llenar columna izquierda (Atrás)
         contenedorAtras.removeAll();
         List<EntradaHistorial> listaAtras = servicio.obtenerListaAtras();
-        lblContadorAtras.setText(listaAtras.size() + " en pila");
+        lblTotalAtras.setText(listaAtras.size() + " páginas guardadas");
 
         if (listaAtras.isEmpty()) {
-            contenedorAtras.add(crearMensajeVacio("Sin páginas en el historial."));
+            contenedorAtras.add(crearAvisoVacio("No hay páginas en el historial."));
         } else {
-            int indice = 0;
+            int orden = 1;
             for (EntradaHistorial e : listaAtras) {
-                boolean esTope = (indice == 0);
-                contenedorAtras.add(crearTarjetaHistorial(e, indice, esTope, true));
-                contenedorAtras.add(Box.createVerticalStrut(8));
-                indice++;
+                boolean esActual = (orden == 1);
+                contenedorAtras.add(crearFilaHistorial(e, orden, esActual));
+                contenedorAtras.add(Box.createVerticalStrut(6));
+                orden++;
             }
         }
 
-        // 5. Renderizar Pila Adelante
+        // 5. Llenar columna derecha (Adelante)
         contenedorAdelante.removeAll();
         List<EntradaHistorial> listaAdelante = servicio.obtenerListaAdelante();
-        lblContadorAdelante.setText(listaAdelante.size() + " disponibles");
+        lblTotalAdelante.setText(listaAdelante.size() + " disponibles");
 
         if (listaAdelante.isEmpty()) {
-            contenedorAdelante.add(crearMensajeVacio("Pila vacía. Presiona 'Atrás' para habilitar páginas adelante."));
+            contenedorAdelante.add(crearAvisoVacio("Está vacía porque estás en la página más reciente.\nSi le das al botón '◀ Atrás', aquí aparecerán las páginas para volver hacia adelante."));
         } else {
-            int indice = 0;
+            int orden = 1;
             for (EntradaHistorial e : listaAdelante) {
-                contenedorAdelante.add(crearTarjetaHistorial(e, indice, false, false));
-                contenedorAdelante.add(Box.createVerticalStrut(8));
-                indice++;
+                contenedorAdelante.add(crearFilaHistorial(e, orden, false));
+                contenedorAdelante.add(Box.createVerticalStrut(6));
+                orden++;
             }
         }
 
@@ -343,69 +329,59 @@ public class PanelHistorialNavegacion extends JPanel {
         repaint();
     }
 
-    private JPanel crearTarjetaHistorial(EntradaHistorial entrada, int posicion, boolean esTope, boolean esPilaAtras) {
-        JPanel tarjeta = new JPanel(new BorderLayout(10, 0));
-        tarjeta.setBackground(Paleta.TARJETA);
-        tarjeta.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(esTope ? Paleta.BOTON_ACTIVO : Paleta.BORDE, esTope ? 2 : 1),
+    private JPanel crearFilaHistorial(EntradaHistorial entrada, int posicion, boolean esActual) {
+        JPanel fila = new JPanel(new BorderLayout(8, 0));
+        fila.setBackground(Paleta.TARJETA);
+        fila.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(esActual ? Paleta.BOTON_ACTIVO : Paleta.BORDE, esActual ? 2 : 1),
                 BorderFactory.createEmptyBorder(8, 12, 8, 12)
         ));
-        tarjeta.setMaximumSize(new Dimension(Integer.MAX_VALUE, 65));
+        fila.setMaximumSize(new Dimension(Integer.MAX_VALUE, 58));
 
-        // Icono + Textos
-        JPanel panelInfo = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
-        panelInfo.setBackground(Paleta.TARJETA);
+        JPanel panelTexto = new JPanel();
+        panelTexto.setLayout(new BoxLayout(panelTexto, BoxLayout.Y_AXIS));
+        panelTexto.setBackground(Paleta.TARJETA);
 
-        JLabel lblIcono = new JLabel(entrada.getIcono());
-        lblIcono.setFont(new Font("SansSerif", Font.PLAIN, 18));
+        String textoTitulo = (esActual ? "★ ESTÁS AQUÍ: " : (posicion) + ". ") + entrada.getDestino();
+        JLabel lblNom = new JLabel(textoTitulo);
+        lblNom.setFont(new Font("SansSerif", esActual ? Font.BOLD : Font.PLAIN, 13));
+        lblNom.setForeground(Paleta.TEXTO);
 
-        JPanel panelTextos = new JPanel();
-        panelTextos.setLayout(new BoxLayout(panelTextos, BoxLayout.Y_AXIS));
-        panelTextos.setBackground(Paleta.TARJETA);
+        JLabel lblDet = new JLabel(entrada.getIcono() + " " + entrada.getTipo() + " • " + entrada.getHoraVisita());
+        lblDet.setFont(new Font("SansSerif", Font.PLAIN, 11));
+        lblDet.setForeground(Paleta.TEXTO_SECUNDARIO);
 
-        String titulo = (esTope ? "★ [TOPE] " : "[" + posicion + "] ") + entrada.getDestino();
-        JLabel lblTitulo = new JLabel(titulo);
-        lblTitulo.setFont(new Font("SansSerif", esTope ? Font.BOLD : Font.PLAIN, 13));
-        lblTitulo.setForeground(Paleta.TEXTO);
+        panelTexto.add(lblNom);
+        panelTexto.add(lblDet);
 
-        JLabel lblSub = new JLabel(entrada.getTipo() + " • " + entrada.getHoraVisita());
-        lblSub.setFont(new Font("SansSerif", Font.PLAIN, 11));
-        lblSub.setForeground(Paleta.TEXTO_SECUNDARIO);
+        fila.add(panelTexto, BorderLayout.CENTER);
 
-        panelTextos.add(lblTitulo);
-        panelTextos.add(lblSub);
-
-        panelInfo.add(lblIcono);
-        panelInfo.add(panelTextos);
-
-        tarjeta.add(panelInfo, BorderLayout.CENTER);
-
-        // Botón rápido para saltar a esta entrada
-        if (!esTope) {
-            JButton btnIr = PanelPublicaciones.crearBoton("Ir");
-            btnIr.setFont(new Font("SansSerif", Font.PLAIN, 11));
-            btnIr.addActionListener(ev -> {
+        if (!esActual) {
+            JButton btnSaltar = PanelPublicaciones.crearBoton("Ir a esta");
+            btnSaltar.setFont(new Font("SansSerif", Font.PLAIN, 11));
+            btnSaltar.addActionListener(e -> {
                 servicio.visitar(entrada.getDestino(), entrada.getTipo());
                 actualizarTodo();
             });
-            tarjeta.add(btnIr, BorderLayout.EAST);
+            fila.add(btnSaltar, BorderLayout.EAST);
         }
 
-        return tarjeta;
+        return fila;
     }
 
-    private JPanel crearMensajeVacio(String texto) {
+    private JPanel crearAvisoVacio(String mensaje) {
         JPanel p = new JPanel(new FlowLayout(FlowLayout.CENTER));
         p.setBackground(Paleta.FONDO);
-        JLabel lbl = new JLabel("<html><body style='text-align:center;width:280px;'>" + texto + "</body></html>");
+        p.setBorder(BorderFactory.createEmptyBorder(20, 10, 20, 10));
+        JLabel lbl = new JLabel("<html><body style='text-align:center;width:260px;'>" + mensaje + "</body></html>");
         lbl.setFont(new Font("SansSerif", Font.ITALIC, 13));
         lbl.setForeground(Paleta.TEXTO_SECUNDARIO);
         p.add(lbl);
         return p;
     }
 
-    private JScrollPane crearScroll(JPanel contenedor) {
-        JScrollPane scroll = new JScrollPane(contenedor);
+    private JScrollPane crearScroll(JPanel panel) {
+        JScrollPane scroll = new JScrollPane(panel);
         scroll.setBackground(Paleta.FONDO);
         scroll.getViewport().setBackground(Paleta.FONDO);
         scroll.setBorder(BorderFactory.createLineBorder(Paleta.BORDE, 1));
@@ -414,16 +390,15 @@ public class PanelHistorialNavegacion extends JPanel {
         return scroll;
     }
 
-    private void ejecutarNavegacion(String tipo) {
-        String texto = txtBarraDireccion.getText().trim();
-        if (texto.isEmpty()) {
-            return;
+    private void navegar(String tipo) {
+        String texto = txtBarra.getText().trim();
+        if (!texto.isEmpty()) {
+            servicio.visitar(texto, tipo);
+            actualizarTodo();
         }
-        servicio.visitar(texto, tipo);
-        actualizarTodo();
     }
 
-    private JButton crearBotonChip(String texto) {
+    private JButton crearChip(String texto) {
         JButton btn = new JButton(texto);
         btn.setBackground(Paleta.BOTON);
         btn.setForeground(Paleta.TEXTO_SECUNDARIO);

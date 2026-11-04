@@ -93,3 +93,4 @@ public class EntradaHistorial {
         return String.format("[%s] %s (%s a las %s)", getIcono(), destino, tipo, horaVisita);
     }
 }
+
