@@ -20,7 +20,6 @@ import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.border.EmptyBorder;
 
-
 public class VentanaRedSocial extends JFrame {
 
     private static final String INICIO = "inicio";
@@ -46,8 +45,6 @@ public class VentanaRedSocial extends JFrame {
         raiz.add(pantallaDetalle(), DETALLE);
         raiz.add(new PanelGradosSeparacion(() -> cartas.show(raiz, INICIO)), GRADOS);
         raiz.add(new PanelMatrizAdyacencia(() -> cartas.show(raiz, INICIO)), CONEXIONES_KEY);
-        //raiz.add(new PanelComentarios(() -> cartas.show(raiz, INICIO)), COMENTARIOS);
-        
         
         raiz.add(new PanelColas(() -> cartas.show(raiz, INICIO)), COLAS);
         
@@ -182,8 +179,7 @@ public class VentanaRedSocial extends JFrame {
             return;
         }
         
-        
-        if (funcion.name().contains("COLA") || funcion.name().contains("HISTORIA")) {
+        if (funcion.getGrupo().equalsIgnoreCase("Colas") || funcion.name().contains("COLA") || funcion.name().contains("HISTORIA")) {
             cartas.show(raiz, COLAS);
             return;
         }
