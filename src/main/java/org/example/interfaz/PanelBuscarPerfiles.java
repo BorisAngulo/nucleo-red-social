@@ -59,7 +59,7 @@ public class PanelBuscarPerfiles extends JPanel {
 
     private void configurarTextArea(JTextArea area) {
         area.setEditable(false);
-        area.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 13));
+        area.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 17));
         area.setBackground(Paleta.TARJETA);
         area.setForeground(Paleta.TEXTO);
         area.setBorder(new EmptyBorder(12, 12, 12, 12));
@@ -75,12 +75,12 @@ public class PanelBuscarPerfiles extends JPanel {
         contenido.setLayout(new BoxLayout(contenido, BoxLayout.Y_AXIS));
         contenido.setBackground(Paleta.FONDO);
 
-        contenido.add(texto("Matriz y arreglo", 14, Paleta.TEXTO_SECUNDARIO));
+        contenido.add(texto("Matriz y arreglo", 18, Paleta.TEXTO_SECUNDARIO));
         contenido.add(Box.createVerticalStrut(6));
-        contenido.add(texto("Buscar perfiles", 28, Paleta.TEXTO));
+        contenido.add(texto("Buscar perfiles", 34, Paleta.TEXTO));
         contenido.add(Box.createVerticalStrut(6));
         contenido.add(texto("Arreglo de usuarios ordenado, con búsqueda binaria O(log n).",
-                15, Paleta.TEXTO_SECUNDARIO));
+                20, Paleta.TEXTO_SECUNDARIO));
         contenido.add(Box.createVerticalStrut(18));
 
         contenido.add(filaBusqueda());
@@ -136,13 +136,13 @@ public class PanelBuscarPerfiles extends JPanel {
             }
         });
 
-        fila.add(texto("Buscar usuario:", 14, Paleta.TEXTO_SECUNDARIO));
+        fila.add(texto("Buscar usuario:", 18, Paleta.TEXTO_SECUNDARIO));
         fila.add(Box.createHorizontalStrut(8));
         fila.add(campoBusqueda);
         fila.add(Box.createHorizontalStrut(8));
         fila.add(botonBuscar);
         fila.add(Box.createHorizontalStrut(16));
-        fila.add(texto("Prueba rápida:", 14, Paleta.TEXTO_SECUNDARIO));
+        fila.add(texto("Prueba rápida:", 18, Paleta.TEXTO_SECUNDARIO));
         fila.add(Box.createHorizontalStrut(6));
         fila.add(comboRapido);
         fila.add(Box.createHorizontalStrut(6));
@@ -162,15 +162,15 @@ public class PanelBuscarPerfiles extends JPanel {
         JButton botonEliminar = boton("Eliminar usuario buscado");
         botonEliminar.addActionListener(evento -> eliminarPerfil());
 
-        fila.add(texto("Nuevo @usuario:", 13, Paleta.TEXTO_SECUNDARIO));
+        fila.add(texto("Nuevo @usuario:", 17, Paleta.TEXTO_SECUNDARIO));
         fila.add(Box.createHorizontalStrut(6));
         fila.add(campoNuevoUser);
         fila.add(Box.createHorizontalStrut(8));
-        fila.add(texto("Nombre:", 13, Paleta.TEXTO_SECUNDARIO));
+        fila.add(texto("Nombre:", 17, Paleta.TEXTO_SECUNDARIO));
         fila.add(Box.createHorizontalStrut(6));
         fila.add(campoNuevoNombre);
         fila.add(Box.createHorizontalStrut(8));
-        fila.add(texto("Bio:", 13, Paleta.TEXTO_SECUNDARIO));
+        fila.add(texto("Bio:", 17, Paleta.TEXTO_SECUNDARIO));
         fila.add(Box.createHorizontalStrut(6));
         fila.add(campoNuevoBio);
         fila.add(Box.createHorizontalStrut(10));
@@ -187,7 +187,7 @@ public class PanelBuscarPerfiles extends JPanel {
                 BorderFactory.createLineBorder(Paleta.BORDE),
                 new EmptyBorder(14, 14, 14, 14)));
 
-        JLabel etiquetaTitulo = texto(titulo, 16, Paleta.TEXTO);
+        JLabel etiquetaTitulo = texto(titulo, 20, Paleta.TEXTO);
         tarjeta.add(etiquetaTitulo, BorderLayout.NORTH);
 
         JScrollPane scroll = new JScrollPane(areaTexto);
@@ -328,7 +328,7 @@ public class PanelBuscarPerfiles extends JPanel {
         campo.setBackground(Paleta.BOTON);
         campo.setForeground(Paleta.TEXTO);
         campo.setCaretColor(Paleta.TEXTO);
-        campo.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 14));
+        campo.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 18));
         campo.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(Paleta.BORDE), new EmptyBorder(5, 8, 5, 8)));
     }
@@ -336,14 +336,14 @@ public class PanelBuscarPerfiles extends JPanel {
     private void estiloCombo(JComboBox<?> combo) {
         combo.setBackground(Paleta.BOTON);
         combo.setForeground(Paleta.TEXTO);
-        combo.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 14));
+        combo.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 18));
     }
 
     private JButton boton(String titulo) {
         JButton boton = new JButton(titulo);
         boton.setBackground(Paleta.BOTON);
         boton.setForeground(Paleta.TEXTO);
-        boton.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 14));
+        boton.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 18));
         boton.setFocusPainted(false);
         boton.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(Paleta.BORDE), new EmptyBorder(8, 12, 8, 12)));

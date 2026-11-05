@@ -47,7 +47,7 @@ public class PanelGradosSeparacion extends JPanel {
         resultado.setWrapStyleWord(true);
         resultado.setBackground(Paleta.TARJETA);
         resultado.setForeground(Paleta.TEXTO);
-        resultado.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 16));
+        resultado.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 20));
         resultado.setBorder(new EmptyBorder(0, 0, 0, 0));
         armar();
     }
@@ -61,12 +61,12 @@ public class PanelGradosSeparacion extends JPanel {
         columna.setLayout(new BoxLayout(columna, BoxLayout.Y_AXIS));
         columna.setBackground(Paleta.FONDO);
 
-        columna.add(texto("Recursividad", 14, Paleta.TEXTO_SECUNDARIO));
+        columna.add(texto("Recursividad", 18, Paleta.TEXTO_SECUNDARIO));
         columna.add(Box.createVerticalStrut(8));
-        columna.add(texto("Grados de separación", 28, Paleta.TEXTO));
+        columna.add(texto("Grados de separación", 34, Paleta.TEXTO));
         columna.add(Box.createVerticalStrut(8));
         columna.add(texto("La cadena más corta entre dos personas, sin pasar de "
-                + GradosSeparacion.LIMITE + " amigos.", 16, Paleta.TEXTO_SECUNDARIO));
+                + GradosSeparacion.LIMITE + " amigos.", 20, Paleta.TEXTO_SECUNDARIO));
         columna.add(Box.createVerticalStrut(20));
         columna.add(filaEleccion());
         columna.add(Box.createVerticalStrut(16));
@@ -111,7 +111,7 @@ public class PanelGradosSeparacion extends JPanel {
         JPanel bloque = new JPanel();
         bloque.setLayout(new BoxLayout(bloque, BoxLayout.Y_AXIS));
         bloque.setBackground(Paleta.FONDO);
-        JLabel etiqueta = texto(titulo, 14, Paleta.TEXTO_SECUNDARIO);
+        JLabel etiqueta = texto(titulo, 18, Paleta.TEXTO_SECUNDARIO);
         etiqueta.setAlignmentX(Component.LEFT_ALIGNMENT);
         combo.setAlignmentX(Component.LEFT_ALIGNMENT);
         bloque.add(etiqueta);
@@ -134,7 +134,7 @@ public class PanelGradosSeparacion extends JPanel {
         redTexto.setEditable(false);
         redTexto.setBackground(Paleta.TARJETA);
         redTexto.setForeground(Paleta.TEXTO_SECUNDARIO);
-        redTexto.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 14));
+        redTexto.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 18));
         redTexto.setBorder(new EmptyBorder(0, 0, 0, 0));
         JPanel caja = new JPanel(new BorderLayout());
         caja.setBackground(Paleta.TARJETA);
@@ -215,7 +215,7 @@ public class PanelGradosSeparacion extends JPanel {
         JComboBox<Usuario> combo = new JComboBox<>(personas);
         combo.setBackground(Paleta.BOTON);
         combo.setForeground(Paleta.TEXTO);
-        combo.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 15));
+        combo.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 19));
         return combo;
     }
 
@@ -236,7 +236,7 @@ public class PanelGradosSeparacion extends JPanel {
     private void estilo(JButton boton) {
         boton.setBackground(Paleta.BOTON);
         boton.setForeground(Paleta.TEXTO);
-        boton.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 15));
+        boton.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 19));
         boton.setFocusPainted(false);
         boton.setBorder(javax.swing.BorderFactory.createCompoundBorder(
                 javax.swing.BorderFactory.createLineBorder(Paleta.BORDE),

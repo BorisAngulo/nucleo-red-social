@@ -20,6 +20,8 @@ import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.border.EmptyBorder;
 
+import org.example.redsocial.hashtags.IndiceHashtags;
+
 /**
  * Pantalla principal. Cada botón abre el lugar de su función.
  */
@@ -32,25 +34,37 @@ public class VentanaRedSocial extends JFrame {
     private static final String AMIGOS = "amigos";
     private static final String BUSCAR_PERFILES_KEY = "BUSCAR_PERFILES";
     private static final String COMENTARIOS = "comentarios";
+    private static final String PUBLICACIONES = "publicaciones";
+    private static final String HISTORIAL = "historial";
+    private static final String NOTIFICACIONES = "notificaciones";
+    private static final String HISTORIAS = "historias";
+    private static final String RUTA = "ruta";
+    private static final String ANIDADOS = "anidados";
+    private static final String HASHTAGS = "hashtags";
+    private static final String RECORRER = "recorrer";
+    private static final String MODERACION = "moderacion";
 
     private final CardLayout cartas = new CardLayout();
     private final JPanel raiz = new JPanel(cartas);
 
     private final JLabel tituloDetalle =
-            etiqueta("", 28, Paleta.TEXTO);
+            etiqueta("", 34, Paleta.TEXTO);
 
     private final JLabel grupoDetalle =
-            etiqueta("", 14, Paleta.TEXTO_SECUNDARIO);
+            etiqueta("", 18, Paleta.TEXTO_SECUNDARIO);
 
     private final JLabel resumenDetalle =
-            etiqueta("", 16, Paleta.TEXTO);
+            etiqueta("", 20, Paleta.TEXTO);
+
+    private final PanelIndiceHashtags panelIndice;
+    private final PanelRecorrerHashtags panelRecorrer;
 
     public VentanaRedSocial() {
 
         super("Núcleo");
 
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(980, 720);
+        setSize(1100, 820);
         setLocationRelativeTo(null);
 
         raiz.setBackground(Paleta.FONDO);
@@ -72,6 +86,18 @@ public class VentanaRedSocial extends JFrame {
         raiz.add(new PanelMatrizAdyacencia(() -> cartas.show(raiz, INICIO)), CONEXIONES_KEY);
         raiz.add(new PanelBuscarPerfiles(() -> cartas.show(raiz, INICIO)), BUSCAR_PERFILES_KEY);
         raiz.add(new PanelComentarios(() -> cartas.show(raiz, INICIO)), COMENTARIOS);
+        raiz.add(new PanelPublicaciones(() -> cartas.show(raiz, INICIO)), PUBLICACIONES);
+        raiz.add(new PanelHistorial(() -> cartas.show(raiz, INICIO)), HISTORIAL);
+        raiz.add(new PanelNotificaciones(() -> cartas.show(raiz, INICIO)), NOTIFICACIONES);
+        raiz.add(new PanelHistorias(() -> cartas.show(raiz, INICIO)), HISTORIAS);
+        raiz.add(new PanelRutaAmigos(() -> cartas.show(raiz, INICIO)), RUTA);
+        raiz.add(new PanelComentariosAnidados(() -> cartas.show(raiz, INICIO)), ANIDADOS);
+        IndiceHashtags indiceHashtags = new IndiceHashtags();
+        this.panelIndice = new PanelIndiceHashtags(indiceHashtags, () -> cartas.show(raiz, INICIO));
+        this.panelRecorrer = new PanelRecorrerHashtags(indiceHashtags, () -> cartas.show(raiz, INICIO));
+        raiz.add(panelIndice, HASHTAGS);
+        raiz.add(panelRecorrer, RECORRER);
+        raiz.add(new PanelModeracion(() -> cartas.show(raiz, INICIO)), MODERACION);
         setContentPane(raiz);
     }
 
@@ -90,7 +116,7 @@ public class VentanaRedSocial extends JFrame {
 
         JLabel titulo = etiqueta(
                 "Núcleo de una red social",
-                32,
+                40,
                 Paleta.TEXTO
         );
 
@@ -98,7 +124,7 @@ public class VentanaRedSocial extends JFrame {
 
         JLabel subtitulo = etiqueta(
                 "Estructuras de una red social",
-                16,
+                20,
                 Paleta.TEXTO_SECUNDARIO
         );
 
@@ -194,7 +220,7 @@ public class VentanaRedSocial extends JFrame {
 
         JLabel etiqueta = etiqueta(
                 titulo,
-                18,
+                22,
                 Paleta.TEXTO
         );
 
@@ -215,7 +241,7 @@ public class VentanaRedSocial extends JFrame {
         JButton boton = new JButton(
                 "<html><div style='text-align:left'>"
                         + funcion.getNombre()
-                        + "<br><span style='font-size:11px;color:#A3A3A3'>"
+                        + "<br><span style='font-size:15px;color:#A3A3A3'>"
                         + funcion.getResumen()
                         + "</span></div></html>"
         );
@@ -262,7 +288,7 @@ public class VentanaRedSocial extends JFrame {
 
         JLabel aviso = etiqueta(
                 "Esta función todavía no está implementada.",
-                16,
+                20,
                 Paleta.TEXTO_SECUNDARIO
         );
 
@@ -325,6 +351,44 @@ public class VentanaRedSocial extends JFrame {
             cartas.show(raiz, COMENTARIOS);
             return;
         }
+        if (funcion == FuncionRed.PUBLICACIONES_DEL_PERFIL) {
+            cartas.show(raiz, PUBLICACIONES);
+            return;
+        }
+        if (funcion == FuncionRed.HISTORIAL_DE_NAVEGACION) {
+            cartas.show(raiz, HISTORIAL);
+            return;
+        }
+        if (funcion == FuncionRed.NOTIFICACIONES) {
+            cartas.show(raiz, NOTIFICACIONES);
+            return;
+        }
+        if (funcion == FuncionRed.HISTORIAS_ACTIVAS) {
+            cartas.show(raiz, HISTORIAS);
+            return;
+        }
+        if (funcion == FuncionRed.RUTA_DE_AMIGOS) {
+            cartas.show(raiz, RUTA);
+            return;
+        }
+        if (funcion == FuncionRed.BORRAR_COMENTARIOS_ANIDADOS) {
+            cartas.show(raiz, ANIDADOS);
+            return;
+        }
+        if (funcion == FuncionRed.INDICE_DE_HASHTAGS) {
+            panelIndice.refrescar();
+            cartas.show(raiz, HASHTAGS);
+            return;
+        }
+        if (funcion == FuncionRed.RECORRER_HASHTAGS) {
+            panelRecorrer.refrescar();
+            cartas.show(raiz, RECORRER);
+            return;
+        }
+        if (funcion == FuncionRed.MODERACION_DE_CONTENIDO) {
+            cartas.show(raiz, MODERACION);
+            return;
+        }
         grupoDetalle.setText(funcion.getGrupo());
 
         tituloDetalle.setText(funcion.getNombre());
@@ -340,7 +404,7 @@ public class VentanaRedSocial extends JFrame {
         boton.setForeground(Paleta.TEXTO);
 
         boton.setFont(
-                new Font(Font.SANS_SERIF, Font.PLAIN, 15)
+                new Font(Font.SANS_SERIF, Font.PLAIN, 19)
         );
 
         boton.setFocusPainted(false);

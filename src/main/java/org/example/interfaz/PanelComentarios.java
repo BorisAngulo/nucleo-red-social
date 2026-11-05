@@ -39,7 +39,7 @@ public class PanelComentarios extends JPanel {
         this.alVolver = alVolver;
         this.hilo = new HiloComentarios();
 
-        this.posicionTexto = texto("Sin comentarios", 14, Paleta.TEXTO_SECUNDARIO);
+        this.posicionTexto = texto("Sin comentarios", 18, Paleta.TEXTO_SECUNDARIO);
 
         this.comentarioActual = new JTextArea(8, 30);
         comentarioActual.setEditable(false);
@@ -47,15 +47,19 @@ public class PanelComentarios extends JPanel {
         comentarioActual.setWrapStyleWord(true);
         comentarioActual.setBackground(Paleta.TARJETA);
         comentarioActual.setForeground(Paleta.TEXTO);
-        comentarioActual.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 16));
+        comentarioActual.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 20));
 
         this.autor = new JTextField("Usuario");
+        autor.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 19));
+        autor.setBackground(Paleta.TARJETA);
+        autor.setForeground(Paleta.TEXTO);
+        autor.setCaretColor(Paleta.TEXTO);
         this.contenido = new JTextArea(3, 30);
         contenido.setLineWrap(true);
         contenido.setWrapStyleWord(true);
         contenido.setBackground(Paleta.TARJETA);
         contenido.setForeground(Paleta.TEXTO);
-        contenido.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 15));
+        contenido.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 19));
 
         this.anterior = new JButton("Anterior");
         this.siguiente = new JButton("Siguiente");
@@ -75,13 +79,13 @@ public class PanelComentarios extends JPanel {
         columna.setLayout(new BoxLayout(columna, BoxLayout.Y_AXIS));
         columna.setBackground(Paleta.FONDO);
 
-        columna.add(texto("Comentarios", 14, Paleta.TEXTO_SECUNDARIO));
+        columna.add(texto("Comentarios", 18, Paleta.TEXTO_SECUNDARIO));
         columna.add(Box.createVerticalStrut(8));
-        columna.add(texto("Hilo de comentarios", 28, Paleta.TEXTO));
+        columna.add(texto("Hilo de comentarios", 34, Paleta.TEXTO));
         columna.add(Box.createVerticalStrut(8));
         columna.add(texto(
                 "Agrega comentarios, responde y navega por el hilo.",
-                16,
+                20,
                 Paleta.TEXTO_SECUNDARIO));
         columna.add(Box.createVerticalStrut(20));
 
@@ -92,13 +96,13 @@ public class PanelComentarios extends JPanel {
         columna.add(filaNavegacion());
         columna.add(Box.createVerticalStrut(24));
 
-        columna.add(texto("Autor", 14, Paleta.TEXTO_SECUNDARIO));
+        columna.add(texto("Autor", 18, Paleta.TEXTO_SECUNDARIO));
         columna.add(Box.createVerticalStrut(6));
         autor.setMaximumSize(new java.awt.Dimension(Integer.MAX_VALUE, 36));
         columna.add(autor);
 
         columna.add(Box.createVerticalStrut(12));
-        columna.add(texto("Contenido del comentario", 14, Paleta.TEXTO_SECUNDARIO));
+        columna.add(texto("Contenido del comentario", 18, Paleta.TEXTO_SECUNDARIO));
         columna.add(Box.createVerticalStrut(6));
         columna.add(cajaContenido());
         columna.add(Box.createVerticalStrut(12));
@@ -262,7 +266,7 @@ public class PanelComentarios extends JPanel {
     private void estilo(JButton boton) {
         boton.setBackground(Paleta.BOTON);
         boton.setForeground(Paleta.TEXTO);
-        boton.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 15));
+        boton.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 19));
         boton.setFocusPainted(false);
         boton.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(Paleta.BORDE),

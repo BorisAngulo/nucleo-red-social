@@ -85,18 +85,18 @@ public class PanelCarruselAmigos extends JPanel {
 
         JLabel titulo = new JLabel("AMIGOS SUGERIDOS");
 
-        titulo.setFont(new Font("Arial", Font.BOLD, 27));
+        titulo.setFont(new Font("Arial", Font.BOLD, 34));
         titulo.setForeground(TEXTO);
 
         JLabel subtitulo = new JLabel(
                 "Descubre personas y conecta con nuevos amigos"
         );
 
-        subtitulo.setFont(new Font("Arial", Font.PLAIN, 14));
+        subtitulo.setFont(new Font("Arial", Font.PLAIN, 18));
         subtitulo.setForeground(SECUNDARIO);
 
         lblCantidad = new JLabel("Perfiles disponibles: 0");
-        lblCantidad.setFont(new Font("Arial", Font.BOLD, 12));
+        lblCantidad.setFont(new Font("Arial", Font.BOLD, 16));
         lblCantidad.setForeground(AZUL);
 
         textos.add(titulo);
@@ -112,7 +112,7 @@ public class PanelCarruselAmigos extends JPanel {
         acciones.setBackground(FONDO);
 
         campoBuscar = new JTextField(17);
-        campoBuscar.setFont(new Font("Arial", Font.PLAIN, 13));
+        campoBuscar.setFont(new Font("Arial", Font.PLAIN, 17));
         campoBuscar.setForeground(TEXTO);
         campoBuscar.setBackground(TARJETA);
         campoBuscar.setCaretColor(TEXTO);
@@ -272,7 +272,7 @@ public class PanelCarruselAmigos extends JPanel {
             );
 
             mensaje.setForeground(TEXTO);
-            mensaje.setFont(new Font("Arial", Font.BOLD, 20));
+            mensaje.setFont(new Font("Arial", Font.BOLD, 24));
 
             filaPerfiles.add(Box.createHorizontalStrut(30));
             filaPerfiles.add(mensaje);
@@ -403,19 +403,19 @@ public class PanelCarruselAmigos extends JPanel {
         // NOMBRE
 
         JLabel nombre = etiqueta(
-                perfil.getNombre(), 19, true
+                perfil.getNombre(), 23, true
         );
 
         // USUARIO
 
         JLabel usuario = etiqueta(
-                "@" + perfil.getUsuario(), 14, false
+                "@" + perfil.getUsuario(), 18, false
         );
 
         // DESCRIPCIÓN
 
         JLabel descripcion = etiqueta(
-                perfil.getDescripcion(), 13, false
+                perfil.getDescripcion(), 17, false
         );
 
         // BOTÓN SEGUIR
@@ -658,7 +658,7 @@ public class PanelCarruselAmigos extends JPanel {
         JButton boton = new JButton(texto);
 
         boton.setFont(
-                new Font("Arial", Font.BOLD, 13)
+                new Font("Arial", Font.BOLD, 17)
         );
 
         boton.setForeground(Color.BLACK);

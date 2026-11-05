@@ -2,6 +2,7 @@ package org.example.interfaz;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.Font;
 
 import javax.swing.BorderFactory;
@@ -25,7 +26,7 @@ public class PanelMatrizAdyacencia extends JPanel {
 
     private final Runnable alVolver;
     private final CatalogoUsuariosMatriz catalogo = new CatalogoUsuariosMatriz();
-    private final JTextField nombreUsuario = new JTextField(16);
+    private final JTextField nombreUsuario = new JTextField(12);
     private final JComboBox<UsuarioMatriz> origen = new JComboBox<>();
     private final JComboBox<UsuarioMatriz> destino = new JComboBox<>();
     private final JComboBox<String> tipoConexion = new JComboBox<>(new String[]{"Seguir", "Amistad"});
@@ -51,7 +52,7 @@ public class PanelMatrizAdyacencia extends JPanel {
 
     private void prepararVisualizacion() {
         visualizacion.setEditable(false);
-        visualizacion.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 14));
+        visualizacion.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 22));
         visualizacion.setBackground(Paleta.TARJETA);
         visualizacion.setForeground(Paleta.TEXTO);
         visualizacion.setBorder(new EmptyBorder(12, 12, 12, 12));
@@ -66,30 +67,25 @@ public class PanelMatrizAdyacencia extends JPanel {
         JPanel contenido = new JPanel();
         contenido.setLayout(new BoxLayout(contenido, BoxLayout.Y_AXIS));
         contenido.setBackground(Paleta.FONDO);
-        contenido.add(texto("Matriz y arreglo", 14, Paleta.TEXTO_SECUNDARIO));
+        contenido.add(texto("Matriz y arreglo", 18, Paleta.TEXTO_SECUNDARIO));
         contenido.add(Box.createVerticalStrut(6));
-        contenido.add(texto("Matriz de Adyacencia", 28, Paleta.TEXTO));
+        contenido.add(texto("Matriz de Adyacencia", 34, Paleta.TEXTO));
         contenido.add(Box.createVerticalStrut(6));
         contenido.add(texto("Gestiona usuarios, amistades bidireccionales y seguimientos.",
-                15, Paleta.TEXTO_SECUNDARIO));
+                20, Paleta.TEXTO_SECUNDARIO));
         contenido.add(Box.createVerticalStrut(16));
         contenido.add(filaAgregarUsuario());
         contenido.add(Box.createVerticalStrut(12));
         contenido.add(filaConexion());
         contenido.add(Box.createVerticalStrut(12));
         contenido.add(filaConsulta());
-        contenido.add(Box.createVerticalStrut(12));
+        add(contenido, BorderLayout.NORTH);
 
         JScrollPane matrizScroll = new JScrollPane(visualizacion);
         matrizScroll.setBorder(BorderFactory.createLineBorder(Paleta.BORDE));
         matrizScroll.getViewport().setBackground(Paleta.TARJETA);
-        contenido.add(matrizScroll);
-
-        JScrollPane scroll = new JScrollPane(contenido);
-        scroll.setBorder(BorderFactory.createEmptyBorder());
-        scroll.setBackground(Paleta.FONDO);
-        scroll.getViewport().setBackground(Paleta.FONDO);
-        add(scroll, BorderLayout.CENTER);
+        matrizScroll.setBackground(Paleta.TARJETA);
+        add(matrizScroll, BorderLayout.CENTER);
 
         JButton volver = boton("Volver");
         volver.addActionListener(evento -> alVolver.run());
@@ -104,14 +100,19 @@ public class PanelMatrizAdyacencia extends JPanel {
         nombreUsuario.setBackground(Paleta.BOTON);
         nombreUsuario.setForeground(Paleta.TEXTO);
         nombreUsuario.setCaretColor(Paleta.TEXTO);
-        nombreUsuario.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 14));
+        nombreUsuario.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 18));
         nombreUsuario.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(Paleta.BORDE), new EmptyBorder(4, 8, 4, 8)));
+        Dimension alto = nombreUsuario.getPreferredSize();
+        Dimension angosto = new Dimension(220, alto.height);
+        nombreUsuario.setPreferredSize(angosto);
+        nombreUsuario.setMaximumSize(angosto);
         JButton agregar = boton("Agregar usuario");
         agregar.addActionListener(evento -> agregarUsuario());
         fila.add(nombreUsuario);
         fila.add(Box.createHorizontalStrut(8));
         fila.add(agregar);
+        fila.add(Box.createHorizontalGlue());
         return fila;
     }
 
@@ -144,7 +145,7 @@ public class PanelMatrizAdyacencia extends JPanel {
         JPanel fila = fila();
         JButton consultar = boton("Consultar vecinos");
         consultar.addActionListener(evento -> mostrarVecinos());
-        fila.add(texto("Usuario:", 14, Paleta.TEXTO_SECUNDARIO));
+        fila.add(texto("Usuario:", 18, Paleta.TEXTO_SECUNDARIO));
         fila.add(Box.createHorizontalStrut(8));
         fila.add(consultar);
         return fila;
@@ -274,14 +275,14 @@ public class PanelMatrizAdyacencia extends JPanel {
     private void estiloCombo(JComboBox<?> combo) {
         combo.setBackground(Paleta.BOTON);
         combo.setForeground(Paleta.TEXTO);
-        combo.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 14));
+        combo.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 18));
     }
 
     private JButton boton(String titulo) {
         JButton boton = new JButton(titulo);
         boton.setBackground(Paleta.BOTON);
         boton.setForeground(Paleta.TEXTO);
-        boton.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 14));
+        boton.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 18));
         boton.setFocusPainted(false);
         boton.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(Paleta.BORDE), new EmptyBorder(8, 10, 8, 10)));
