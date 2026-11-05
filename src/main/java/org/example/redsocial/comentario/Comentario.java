@@ -1,4 +1,4 @@
-package org.example.redsocial.comentarios;
+package org.example.redsocial.comentario;
 
 /**
  * Representa un comentario dentro de una publicación.

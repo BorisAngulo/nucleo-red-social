@@ -1,4 +1,4 @@
-package org.example.redsocial.comentarios;
+package org.example.redsocial.comentario;
 
 import org.example.estructuradedatos.ListaDoblementeEnlazada;
 

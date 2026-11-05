@@ -31,6 +31,7 @@ public class VentanaRedSocial extends JFrame {
     private static final String CONEXIONES_KEY = "CONEXIONES_DIRECTAS";
     private static final String AMIGOS = "amigos";
     private static final String BUSCAR_PERFILES_KEY = "BUSCAR_PERFILES";
+    private static final String COMENTARIOS = "comentarios";
 
     private final CardLayout cartas = new CardLayout();
     private final JPanel raiz = new JPanel(cartas);
@@ -71,6 +72,10 @@ public class VentanaRedSocial extends JFrame {
         raiz.add(new PanelMatrizAdyacencia(() -> cartas.show(raiz, INICIO)), CONEXIONES_KEY);
         raiz.add(new PanelBuscarPerfiles(() -> cartas.show(raiz, INICIO)), BUSCAR_PERFILES_KEY);
         setContentPane(raiz);
+        raiz.add(
+        new PanelComentarios(() -> cartas.show(raiz, INICIO)),
+        COMENTARIOS
+);
     }
 
     private JScrollPane pantallaInicio() {
@@ -319,6 +324,12 @@ public class VentanaRedSocial extends JFrame {
             cartas.show(raiz, BUSCAR_PERFILES_KEY);
             return;
         }
+        
+        if (funcion == FuncionRed.HILO_DE_COMENTARIOS) {
+    cartas.show(raiz, COMENTARIOS);
+    return;
+        }
+        
         grupoDetalle.setText(funcion.getGrupo());
 
         tituloDetalle.setText(funcion.getNombre());
@@ -327,6 +338,8 @@ public class VentanaRedSocial extends JFrame {
 
         cartas.show(raiz, DETALLE);
     }
+    
+    
 
     private static void estiloBoton(JButton boton) {
 
