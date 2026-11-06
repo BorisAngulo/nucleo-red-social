@@ -2,8 +2,6 @@ package org.example.estructuradedatos;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
-import java.util.function.Consumer;
-
 /**
  * Lista circular doblemente enlazada. El primero y el último se apuntan
  * entre sí, y cada nodo conoce a sus dos vecinos.
@@ -148,29 +146,6 @@ public class ListaDobleCircular<T> implements Iterable<T> {
         cantidad = 0;
     }
 
-    public void paraCada(Consumer<T> accion) {
-        if (accion == null) {
-            throw new IllegalArgumentException("La acción no puede ser nula.");
-        }
-        for (T dato : this) {
-            accion.accept(dato);
-        }
-    }
-
-    public void paraCadaInverso(Consumer<T> accion) {
-        if (accion == null) {
-            throw new IllegalArgumentException("La acción no puede ser nula.");
-        }
-        if (cabeza == null) {
-            return;
-        }
-        Nodo<T> actual = cabeza.anterior;
-        for (int i = 0; i < cantidad; i++) {
-            accion.accept(actual.dato);
-            actual = actual.anterior;
-        }
-    }
-
     @Override
     public Iterator<T> iterator() {
         return new Iterator<>() {
@@ -198,6 +173,40 @@ public class ListaDobleCircular<T> implements Iterable<T> {
     @Override
     public String toString() {
         return Texto.de(this);
+    }
+
+    /** Marca el primer nodo. En el anillo, avanzar y retroceder no tienen tope. */
+    public Posicion marcarInicio() {
+        if (cabeza == null) {
+            throw new NoSuchElementException("La lista está vacía.");
+        }
+        return new Posicion(cabeza);
+    }
+
+    /**
+     * Se queda en un nodo del anillo.
+     * Adelante sigue {@code siguiente} y atrás sigue {@code anterior}.
+     */
+    public final class Posicion {
+        private Nodo<T> nodo;
+
+        private Posicion(Nodo<T> nodo) {
+            this.nodo = nodo;
+        }
+
+        public T ver() {
+            return nodo.dato;
+        }
+
+        public T avanzar() {
+            nodo = nodo.siguiente;
+            return nodo.dato;
+        }
+
+        public T retroceder() {
+            nodo = nodo.anterior;
+            return nodo.dato;
+        }
     }
 
     private void desconectar(Nodo<T> actual) {

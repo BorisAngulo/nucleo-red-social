@@ -1,4 +1,4 @@
-package org.example.practicas;
+package org.example.practicas.practica1;
 
 /**
  * Registro de temperaturas guardado en un vector de tamaño fijo.

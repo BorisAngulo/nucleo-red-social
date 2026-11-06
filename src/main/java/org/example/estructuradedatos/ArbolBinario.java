@@ -1,45 +1,20 @@
 package org.example.estructuradedatos;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
 import java.util.NoSuchElementException;
 
 /**
  * Árbol binario de búsqueda. Los datos menores que un nodo quedan a su
  * izquierda y los mayores a su derecha.
- * Sin comparador, el tipo debe implementar Comparable (Integer, String, Double).
- * Con comparador, sirve para cualquier tipo.
+ * El dato se ordena con su propio compareTo, como Integer o String.
  */
 public class ArbolBinario<T> {
 
-    private final Comparator<? super T> comparador;
-    private final boolean ordenNatural;
     private Nodo<T> raiz;
     private int cantidad;
-
-    public ArbolBinario() {
-        this(ordenNatural(), true);
-    }
-
-    public ArbolBinario(Comparator<? super T> comparador) {
-        this(comparador, false);
-    }
-
-    private ArbolBinario(Comparator<? super T> comparador, boolean ordenNatural) {
-        if (comparador == null) {
-            throw new IllegalArgumentException("El comparador no puede ser nulo.");
-        }
-        this.comparador = comparador;
-        this.ordenNatural = ordenNatural;
-    }
 
     /** Inserta el dato respetando el orden. Devuelve false si ya estaba. */
     public boolean insertar(T dato) {
         validar(dato);
-        if (ordenNatural && !(dato instanceof Comparable<?>)) {
-            throw new IllegalArgumentException("Sin comparador, el dato debe implementar Comparable.");
-        }
         if (raiz == null) {
             raiz = new Nodo<>(dato);
             cantidad = 1;
@@ -73,6 +48,58 @@ public class ArbolBinario<T> {
 
     public boolean contiene(T dato) {
         return buscar(dato) != null;
+    }
+
+    /**
+     * Busca en profundidad con una pila. Visita la raíz, luego el hijo
+     * izquierdo y después el derecho, y se detiene al encontrar el dato.
+     * Compara con equals, sin usar el orden del árbol.
+     */
+    public T busquedaEnProfundidad(T dato) {
+        if (dato == null || raiz == null) {
+            return null;
+        }
+        Pila<Nodo<T>> pila = new PilaEnlazada<>();
+        pila.apilar(raiz);
+        while (!pila.estaVacia()) {
+            Nodo<T> actual = pila.desapilar();
+            if (dato.equals(actual.dato)) {
+                return actual.dato;
+            }
+            if (actual.derecho != null) {
+                pila.apilar(actual.derecho);
+            }
+            if (actual.izquierdo != null) {
+                pila.apilar(actual.izquierdo);
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Busca en anchura con una cola. Recorre nivel por nivel, de izquierda
+     * a derecha, y se detiene al encontrar el dato.
+     * Compara con equals, sin usar el orden del árbol.
+     */
+    public T busquedaEnAnchura(T dato) {
+        if (dato == null || raiz == null) {
+            return null;
+        }
+        Cola<Nodo<T>> cola = new ColaEnlazada<>();
+        cola.encolar(raiz);
+        while (!cola.estaVacia()) {
+            Nodo<T> actual = cola.desencolar();
+            if (dato.equals(actual.dato)) {
+                return actual.dato;
+            }
+            if (actual.izquierdo != null) {
+                cola.encolar(actual.izquierdo);
+            }
+            if (actual.derecho != null) {
+                cola.encolar(actual.derecho);
+            }
+        }
+        return null;
     }
 
     public T minimo() {
@@ -122,34 +149,34 @@ public class ArbolBinario<T> {
         cantidad = 0;
     }
 
-    public List<T> preorden() {
-        List<T> recorrido = new ArrayList<>();
+    public ListaEnlazada<T> preorden() {
+        ListaEnlazada<T> recorrido = new ListaEnlazada<>();
         preorden(raiz, recorrido);
         return recorrido;
     }
 
-    public List<T> inorden() {
-        List<T> recorrido = new ArrayList<>();
+    public ListaEnlazada<T> inorden() {
+        ListaEnlazada<T> recorrido = new ListaEnlazada<>();
         inorden(raiz, recorrido);
         return recorrido;
     }
 
-    public List<T> postorden() {
-        List<T> recorrido = new ArrayList<>();
+    public ListaEnlazada<T> postorden() {
+        ListaEnlazada<T> recorrido = new ListaEnlazada<>();
         postorden(raiz, recorrido);
         return recorrido;
     }
 
-    public List<T> porNiveles() {
-        List<T> recorrido = new ArrayList<>();
+    public ListaEnlazada<T> porNiveles() {
+        ListaEnlazada<T> recorrido = new ListaEnlazada<>();
         if (raiz == null) {
             return recorrido;
         }
-        Cola<Nodo<T>> cola = new Cola<>();
+        Cola<Nodo<T>> cola = new ColaEnlazada<>();
         cola.encolar(raiz);
         while (!cola.estaVacia()) {
             Nodo<T> actual = cola.desencolar();
-            recorrido.add(actual.dato);
+            recorrido.insertarAlFinal(actual.dato);
             if (actual.izquierdo != null) {
                 cola.encolar(actual.izquierdo);
             }
@@ -160,13 +187,35 @@ public class ArbolBinario<T> {
         return recorrido;
     }
 
+    /**
+     * Hijo izquierdo y después el derecho del dato.
+     * La lista queda vacía si el dato no está o si el nodo es hoja.
+     */
+    public ListaEnlazada<T> hijos(T dato) {
+        ListaEnlazada<T> hijos = new ListaEnlazada<>();
+        if (dato == null || raiz == null) {
+            return hijos;
+        }
+        Nodo<T> nodo = buscarNodo(raiz, dato);
+        if (nodo == null) {
+            return hijos;
+        }
+        if (nodo.izquierdo != null) {
+            hijos.insertarAlFinal(nodo.izquierdo.dato);
+        }
+        if (nodo.derecho != null) {
+            hijos.insertarAlFinal(nodo.derecho.dato);
+        }
+        return hijos;
+    }
+
     @Override
     public String toString() {
         return inorden().toString();
     }
 
     private boolean insertar(Nodo<T> nodo, T dato) {
-        int comparacion = comparador.compare(dato, nodo.dato);
+        int comparacion = comparar(dato, nodo.dato);
         if (comparacion == 0) {
             return false;
         }
@@ -188,7 +237,7 @@ public class ArbolBinario<T> {
         if (nodo == null) {
             return null;
         }
-        int comparacion = comparador.compare(dato, nodo.dato);
+        int comparacion = comparar(dato, nodo.dato);
         if (comparacion < 0) {
             nodo.izquierdo = eliminar(nodo.izquierdo, dato);
         } else if (comparacion > 0) {
@@ -209,7 +258,7 @@ public class ArbolBinario<T> {
         if (nodo == null) {
             return null;
         }
-        int comparacion = comparador.compare(dato, nodo.dato);
+        int comparacion = comparar(dato, nodo.dato);
         if (comparacion == 0) {
             return nodo;
         }
@@ -244,44 +293,39 @@ public class ArbolBinario<T> {
         return contarHojas(nodo.izquierdo) + contarHojas(nodo.derecho);
     }
 
-    private void preorden(Nodo<T> nodo, List<T> recorrido) {
+    private void preorden(Nodo<T> nodo, ListaEnlazada<T> recorrido) {
         if (nodo == null) {
             return;
         }
-        recorrido.add(nodo.dato);
+        recorrido.insertarAlFinal(nodo.dato);
         preorden(nodo.izquierdo, recorrido);
         preorden(nodo.derecho, recorrido);
     }
 
-    private void inorden(Nodo<T> nodo, List<T> recorrido) {
+    private void inorden(Nodo<T> nodo, ListaEnlazada<T> recorrido) {
         if (nodo == null) {
             return;
         }
         inorden(nodo.izquierdo, recorrido);
-        recorrido.add(nodo.dato);
+        recorrido.insertarAlFinal(nodo.dato);
         inorden(nodo.derecho, recorrido);
     }
 
-    private void postorden(Nodo<T> nodo, List<T> recorrido) {
+    private void postorden(Nodo<T> nodo, ListaEnlazada<T> recorrido) {
         if (nodo == null) {
             return;
         }
         postorden(nodo.izquierdo, recorrido);
         postorden(nodo.derecho, recorrido);
-        recorrido.add(nodo.dato);
+        recorrido.insertarAlFinal(nodo.dato);
     }
 
     @SuppressWarnings("unchecked")
-    private static <T> Comparator<T> ordenNatural() {
-        Comparator<T> natural = (Comparator<T>) Comparator.naturalOrder();
-        return (a, b) -> {
-            try {
-                return natural.compare(a, b);
-            } catch (ClassCastException excepcion) {
-                throw new IllegalArgumentException(
-                        "Sin comparador, el dato debe implementar Comparable.", excepcion);
-            }
-        };
+    private int comparar(T a, T b) {
+        if (!(a instanceof Comparable<?>)) {
+            throw new IllegalArgumentException("El dato debe poder ordenarse con compareTo.");
+        }
+        return ((Comparable<? super T>) a).compareTo(b);
     }
 
     private static <T> void validar(T dato) {

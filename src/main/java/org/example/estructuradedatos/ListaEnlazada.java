@@ -2,7 +2,6 @@ package org.example.estructuradedatos;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
-import java.util.function.Consumer;
 
 /**
  * Lista simplemente enlazada. Cada nodo conoce solo al siguiente.
@@ -162,15 +161,6 @@ public class ListaEnlazada<T> implements Iterable<T> {
         cabeza = null;
         ultimo = null;
         cantidad = 0;
-    }
-
-    public void paraCada(Consumer<T> accion) {
-        if (accion == null) {
-            throw new IllegalArgumentException("La acción no puede ser nula.");
-        }
-        for (T dato : this) {
-            accion.accept(dato);
-        }
     }
 
     @Override
