@@ -4,7 +4,7 @@ package org.example.redsocial.perfiles;
 public final class OrdenamientoPerfiles {
     private OrdenamientoPerfiles() {}
 
-    /** QuickSort ascendente por ID. */
+    // QuickSort ordenamiento por ID
     public static void quickSortPorId(Perfil[] a) {
         if (a != null && a.length > 1) quickSort(a, 0, a.length - 1);
     }
@@ -23,7 +23,7 @@ public final class OrdenamientoPerfiles {
         if (i < der) quickSort(a, i, der);
     }
 
-    /** MergeSort ascendente por nombre, ignorando mayúsculas/minúsculas. */
+    //MergeSort ordenamiento por nombre, ignorando mayúsculas/minúsculas
     public static void mergeSortPorNombre(Perfil[] a) {
         if (a == null || a.length < 2) return;
         Perfil[] auxiliar = new Perfil[a.length];

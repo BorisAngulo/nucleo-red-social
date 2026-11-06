@@ -11,6 +11,9 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Insets;
+import java.awt.Image;
+import java.net.URL;
+import javax.swing.ImageIcon;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -33,6 +36,7 @@ public final class PanelBuscarPerfiles extends JPanel {
 
     private final Runnable alCerrar;
     private final Perfil[] perfiles;
+    private final RedAmistades red;
     private final JComboBox<String> criterioBusqueda = new JComboBox<>(new String[]{"ID", "Nombre"});
     private final JComboBox<String> criterioOrden = new JComboBox<>(new String[]{"ID (menor a mayor)", "Nombre (A–Z)"});
     private final JTextField entrada = new JTextField();
@@ -42,12 +46,28 @@ public final class PanelBuscarPerfiles extends JPanel {
         @Override public boolean isCellEditable(int row, int column) { return false; }
     };
     private final JTable tabla = new JTable(modelo);
+    private final JLabel fotoPerfil = new JLabel("Selecciona un perfil", SwingConstants.CENTER);
+    private final JLabel nombrePerfil = new JLabel("Sin selección", SwingConstants.CENTER);
+    private final JLabel idPerfil = new JLabel("ID: —", SwingConstants.CENTER);
+    private final JLabel edadPerfil = new JLabel("Edad: —");
+    private final JLabel amigosPerfil = new JLabel("Amigos: 0");
+    private final JLabel seguidoresPerfil = new JLabel("Seguidores: 0");
+    private final JLabel siguiendoPerfil = new JLabel("Siguiendo: 0");
 
     public PanelBuscarPerfiles(Runnable alCerrar) {
         this.alCerrar = alCerrar == null ? () -> { } : alCerrar;
-        this.perfiles = new ArregloPerfiles(RedAmistades.ejemplo().getUsuarios()).copiarOcupados();
+        this.red = RedAmistades.ejemplo();
+        this.perfiles = new ArregloPerfiles(red.getUsuarios()).copiarOcupados();
         configurarEstilo();
         construirInterfaz();
+
+        // Escucha la selección del usuario en la tabla y actualiza la ficha izquierda.
+        tabla.getSelectionModel().addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting()) {
+                actualizarFichaDesdeTabla();
+            }
+        });
+
         mostrarOrdenado();
     }
 
@@ -107,8 +127,11 @@ public final class PanelBuscarPerfiles extends JPanel {
     }
 
     private void construirInterfaz() {
-        setLayout(new BorderLayout(0, 18));
-        setBorder(BorderFactory.createEmptyBorder(26, 30, 24, 30));
+        setLayout(new BorderLayout(16, 0));
+        setBorder(BorderFactory.createEmptyBorder(22, 22, 22, 22));
+
+        JPanel panelDerecho = new JPanel(new BorderLayout(0, 16));
+        panelDerecho.setOpaque(false);
 
         JPanel zonaSuperior = new JPanel();
         zonaSuperior.setOpaque(false);
@@ -119,8 +142,8 @@ public final class PanelBuscarPerfiles extends JPanel {
         JPanel textos = new JPanel();
         textos.setOpaque(false);
         textos.setLayout(new BoxLayout(textos, BoxLayout.Y_AXIS));
-        JLabel titulo = etiqueta("Búsqueda de Perfiles", 28, Paleta.TEXTO, Font.BOLD);
-        JLabel subtitulo = etiqueta("Administra la visualización, el orden y la búsqueda de usuarios", 14,
+        JLabel titulo = etiqueta("Búsqueda de Perfiles", 27, Paleta.TEXTO, Font.BOLD);
+        JLabel subtitulo = etiqueta("Encuentra, organiza y consulta los perfiles de Núcleo", 13,
                 Paleta.TEXTO_SECUNDARIO, Font.PLAIN);
         textos.add(titulo);
         textos.add(Box.createVerticalStrut(5));
@@ -128,23 +151,155 @@ public final class PanelBuscarPerfiles extends JPanel {
         tituloPanel.add(textos, BorderLayout.CENTER);
         JLabel etiquetaModulo = new JLabel("MÓDULO DE PERFILES");
         etiquetaModulo.setForeground(Paleta.TEXTO_SECUNDARIO);
-        etiquetaModulo.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 11));
+        etiquetaModulo.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 10));
         etiquetaModulo.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(Paleta.BORDE), BorderFactory.createEmptyBorder(8, 11, 8, 11)));
+                BorderFactory.createLineBorder(Paleta.BORDE), BorderFactory.createEmptyBorder(8, 10, 8, 10)));
         tituloPanel.add(etiquetaModulo, BorderLayout.EAST);
         zonaSuperior.add(tituloPanel);
-        zonaSuperior.add(Box.createVerticalStrut(20));
+        zonaSuperior.add(Box.createVerticalStrut(16));
 
-        JPanel controles = new JPanel(new GridLayout(1, 2, 14, 0));
+        JPanel controles = new JPanel(new GridLayout(1, 2, 12, 0));
         controles.setOpaque(false);
         controles.add(crearTarjetaBusqueda());
         controles.add(crearTarjetaOrdenamiento());
         zonaSuperior.add(controles);
-        add(zonaSuperior, BorderLayout.NORTH);
+        panelDerecho.add(zonaSuperior, BorderLayout.NORTH);
+        panelDerecho.add(crearTarjetaTabla(), BorderLayout.CENTER);
+        panelDerecho.add(crearPie(), BorderLayout.SOUTH);
 
-        JPanel panelTabla = crearTarjetaTabla();
-        add(panelTabla, BorderLayout.CENTER);
-        add(crearPie(), BorderLayout.SOUTH);
+        JPanel panelPerfil = crearPanelPerfil();
+        panelPerfil.setPreferredSize(new Dimension(270, 0));
+        add(panelPerfil, BorderLayout.WEST);
+        add(panelDerecho, BorderLayout.CENTER);
+    }
+
+    private JPanel crearPanelPerfil() {
+        JPanel tarjeta = crearTarjeta();
+        tarjeta.setLayout(new BoxLayout(tarjeta, BoxLayout.Y_AXIS));
+        tarjeta.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(Paleta.BORDE),
+                BorderFactory.createEmptyBorder(22, 18, 22, 18)));
+
+        JLabel encabezado = etiqueta("PERFIL", 13, Paleta.TEXTO_SECUNDARIO, Font.BOLD);
+        encabezado.setAlignmentX(Component.CENTER_ALIGNMENT);
+        tarjeta.add(encabezado);
+        tarjeta.add(Box.createVerticalStrut(24));
+
+        // Fotografía centrada dentro de un espacio cuadrado.
+        fotoPerfil.setPreferredSize(new Dimension(150, 150));
+        fotoPerfil.setMinimumSize(new Dimension(150, 150));
+        fotoPerfil.setMaximumSize(new Dimension(150, 150));
+        fotoPerfil.setAlignmentX(Component.CENTER_ALIGNMENT);
+        fotoPerfil.setHorizontalAlignment(SwingConstants.CENTER);
+        fotoPerfil.setVerticalAlignment(SwingConstants.CENTER);
+        fotoPerfil.setOpaque(true);
+        fotoPerfil.setBackground(Paleta.FONDO);
+        fotoPerfil.setForeground(Paleta.TEXTO_SECUNDARIO);
+        fotoPerfil.setBorder(BorderFactory.createLineBorder(Paleta.BORDE, 2));
+        tarjeta.add(fotoPerfil);
+        tarjeta.add(Box.createVerticalStrut(18));
+
+        nombrePerfil.setForeground(Paleta.TEXTO);
+        nombrePerfil.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 17));
+        nombrePerfil.setAlignmentX(Component.CENTER_ALIGNMENT);
+        nombrePerfil.setHorizontalAlignment(SwingConstants.CENTER);
+        nombrePerfil.setMaximumSize(new Dimension(Integer.MAX_VALUE, 44));
+
+        idPerfil.setForeground(Paleta.TEXTO_SECUNDARIO);
+        idPerfil.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 13));
+        idPerfil.setAlignmentX(Component.CENTER_ALIGNMENT);
+        idPerfil.setHorizontalAlignment(SwingConstants.CENTER);
+
+        tarjeta.add(nombrePerfil);
+        tarjeta.add(Box.createVerticalStrut(7));
+        tarjeta.add(idPerfil);
+        tarjeta.add(Box.createVerticalStrut(24));
+
+        JPanel estadisticas = new JPanel(new GridLayout(2, 2, 12, 20));
+        estadisticas.setOpaque(false);
+        estadisticas.setAlignmentX(Component.CENTER_ALIGNMENT);
+        estadisticas.setMaximumSize(new Dimension(220, 125));
+        estadisticas.add(crearDatoPerfil("EDAD", edadPerfil));
+        estadisticas.add(crearDatoPerfil("AMIGOS", amigosPerfil));
+        estadisticas.add(crearDatoPerfil("SEGUIDORES", seguidoresPerfil));
+        estadisticas.add(crearDatoPerfil("SIGUIENDO", siguiendoPerfil));
+        tarjeta.add(estadisticas);
+        tarjeta.add(Box.createVerticalGlue());
+        return tarjeta;
+    }
+
+    private JPanel crearDatoPerfil(String titulo, JLabel valor) {
+        JPanel tarjetaDato = new JPanel();
+        tarjetaDato.setOpaque(true);
+        tarjetaDato.setBackground(Paleta.FONDO);
+        tarjetaDato.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(Paleta.BORDE),
+                BorderFactory.createEmptyBorder(12, 10, 12, 10)));
+        tarjetaDato.setLayout(new BoxLayout(tarjetaDato, BoxLayout.Y_AXIS));
+        JLabel encabezado = etiqueta(titulo, 9, Paleta.TEXTO_SECUNDARIO, Font.BOLD);
+        encabezado.setAlignmentX(Component.CENTER_ALIGNMENT);
+        valor.setForeground(Paleta.TEXTO);
+        valor.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 12));
+        valor.setAlignmentX(Component.CENTER_ALIGNMENT);
+        tarjetaDato.add(encabezado);
+        tarjetaDato.add(Box.createVerticalStrut(5));
+        tarjetaDato.add(valor);
+        return tarjetaDato;
+    }
+
+    //Actualizar la tabla
+    //Detecta cuando seleccionamos una linea de la tabla
+    private void actualizarFichaDesdeTabla() {
+        int filaVista = tabla.getSelectedRow();
+        if (filaVista < 0) return;
+
+        int fila = tabla.convertRowIndexToModel(filaVista);
+        int id = ((Number) modelo.getValueAt(fila, 0)).intValue();
+        String nombre = String.valueOf(modelo.getValueAt(fila, 1));
+        mostrarFicha(id, nombre);
+    }
+
+    //Mostrar la tabla
+    //Muestra la informacion del usuario seleccionado
+    private void mostrarFicha(int id, String nombre) {
+        nombrePerfil.setText(nombre);
+        idPerfil.setText("ID: " + id);
+
+        Perfil perfilSeleccionado = null;
+        for (Perfil perfil : perfiles) {
+            if (perfil.getId() == id) {
+                perfilSeleccionado = perfil;
+                break;
+            }
+        }
+        if (perfilSeleccionado != null) {
+            org.example.redsocial.separacion.Usuario usuario = perfilSeleccionado.getUsuario();
+            edadPerfil.setText(usuario.getEdad() > 0 ? usuario.getEdad() + " años" : "No indicada");
+            amigosPerfil.setText(String.valueOf(usuario.getAmigos().tamano()));
+            siguiendoPerfil.setText(String.valueOf(usuario.getSeguidos().tamano()));
+
+            int cantidadSeguidores = 0;
+            for (org.example.redsocial.separacion.Usuario otro : red.getUsuarios()) {
+                if (otro.getSeguidos().contiene(usuario)) {
+                    cantidadSeguidores++;
+                }
+            }
+            seguidoresPerfil.setText(String.valueOf(cantidadSeguidores));
+        }
+
+        String ruta = "/Imagenes/usuarios" + id + ".png";
+        URL recurso = getClass().getResource(ruta);
+        if (recurso == null) {
+            fotoPerfil.setIcon(null);
+            fotoPerfil.setText("<html><div style='text-align:center'>Sin<br>fotografía</div></html>");
+            fotoPerfil.setToolTipText("No se encontró " + ruta);
+            return;
+        }
+        ImageIcon original = new ImageIcon(recurso);
+        Image escalada = original.getImage().getScaledInstance(156, 156, Image.SCALE_SMOOTH);
+        fotoPerfil.setText("");
+        fotoPerfil.setIcon(new ImageIcon(escalada));
+        fotoPerfil.setToolTipText("Fotografía de " + nombre);
     }
 
     private JPanel crearTarjetaBusqueda() {
@@ -273,6 +428,7 @@ public final class PanelBuscarPerfiles extends JPanel {
         actualizarTiempoTotal(tiempos);
     }
 
+    //Tiempo de busqueda
     private void buscarPerfil() {
         String valor = entrada.getText().trim();
         if (valor.isEmpty()) {
@@ -323,20 +479,17 @@ public final class PanelBuscarPerfiles extends JPanel {
         etiquetaEstado.setText("Perfil encontrado: " + encontrado.getNombre() + " (ID " + encontrado.getId() + ")");
     }
 
-    /** Suma los tiempos individuales mostrados en la tabla y presenta el total en segundos. */
+     //Tiempo de busqueda
+    //Como se convierte y suma el tiempo en segundos
     private void actualizarTiempoTotal(long[] tiempos) {
         long totalNanosegundos = 0L;
         for (long tiempo : tiempos) {
             totalNanosegundos += tiempo;
         }
         double totalSegundos = totalNanosegundos / 1_000_000_000.0;
-        etiquetaTiempo.setText(String.format("Total de la lista: %.9f s", totalSegundos));
+        etiquetaTiempo.setText(String.format("Total de la lista: %.9f s", totalSegundos));//en donde se divide para luego mostrar el resultado
     }
 
-    /**
-     * Mide por separado la búsqueda binaria de cada perfil visible. El ordenamiento
-     * se realiza antes de iniciar el cronómetro, para medir solamente la búsqueda.
-     */
     private long[] medirTiempoIndividual(Perfil[] perfilesVisibles, int criterio) {
         Perfil[] arregloBusqueda = perfiles.clone();
         if (criterio == 0) {
@@ -369,6 +522,19 @@ public final class PanelBuscarPerfiles extends JPanel {
             Perfil perfil = datos[i];
             modelo.addRow(new Object[]{perfil.getId(), perfil.getNombre(),
                     i < tiempos.length ? String.format("%.9f", tiempos[i] / 1_000_000_000.0) : "—"});
+        }
+        if (modelo.getRowCount() > 0) {
+            tabla.setRowSelectionInterval(0, 0);
+            actualizarFichaDesdeTabla();
+        } else {
+            nombrePerfil.setText("Sin selección");
+            idPerfil.setText("ID: —");
+            edadPerfil.setText("Edad: —");
+            amigosPerfil.setText("Amigos: 0");
+            seguidoresPerfil.setText("Seguidores: 0");
+            siguiendoPerfil.setText("Siguiendo: 0");
+            fotoPerfil.setIcon(null);
+            fotoPerfil.setText("Selecciona un perfil");
         }
     }
 

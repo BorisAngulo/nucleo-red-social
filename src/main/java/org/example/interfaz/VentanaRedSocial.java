@@ -164,6 +164,11 @@ public class VentanaRedSocial extends JFrame {
     }
 
     private void mostrar(FuncionRed funcion) {
+       if (funcion == FuncionRed.BUSCAR_PERFILES) {
+           new VentanaBuscarPerfiles().setVisible(true);
+           return;
+       }
+        
         if (funcion == FuncionRed.GRADOS_DE_SEPARACION) {
             cartas.show(raiz, GRADOS);
             return;

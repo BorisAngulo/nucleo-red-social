@@ -1,9 +1,9 @@
 package org.example.redsocial.perfiles;
 
-/** Búsquedas binarias: el arreglo debe estar ordenado por la misma clave. */
+//Metodo para buscar
 public final class BusquedaBinaria {
     private BusquedaBinaria() {}
-
+//Busqueda por ID
     public static Perfil porId(Perfil[] a, int id) {
         if (a == null) return null;
         int izq = 0, der = a.length - 1;
@@ -16,7 +16,7 @@ public final class BusquedaBinaria {
         }
         return null;
     }
-
+//Busqueda por Nombre
     public static Perfil porNombre(Perfil[] a, String nombre) {
         if (a == null || nombre == null) return null;
         int izq = 0, der = a.length - 1;
